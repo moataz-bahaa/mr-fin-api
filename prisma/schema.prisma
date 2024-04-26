@@ -1,0 +1,308 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Acccount {
+  id              Int            @id @default(autoincrement())
+  userNameOrEmail String         @unique
+  hashedPassword  String
+  tokens          Json           @default("[]")
+  status          ACCOUNT_STATUS @default(active)
+  isOnline        Boolean        @default(false)
+  lastLoginAt     DateTime?
+  logoutAt        DateTime?
+
+  admin    Admin?
+  employee Employee?
+  user     User?
+
+  sendedEmails   Email[]        @relation("user_sended_emails")
+  receivedEmails Email[]        @relation("user_received_emails")
+  uploadedFiles  File[]
+  notifications  Notification[]
+
+  @@map("accounts")
+}
+
+model Admin {
+  id              Int
+  name            String
+  profileImageUrl String?
+  account         Acccount @relation(fields: [id], references: [id])
+
+  @@id([id])
+  @@map("admins")
+}
+
+model Department {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  employees Employee[] @relation("department_employees")
+
+  manager   Employee? @relation(fields: [managerId], references: [id])
+  managerId Int?
+
+  writeableDocument WriteableDocument?
+
+  @@map("departments")
+}
+
+model Employee {
+  id   Int
+  user Acccount @relation(fields: [id], references: [id])
+
+  // personal details
+  personalNumber      String?
+  title               String?
+  firstName           String?
+  lastName            String?
+  streetOrHouseNumber String?
+  zipOrCity           String?
+  country             String?
+  phone               String?
+  gender              GENDER?
+  birthDate           DateTime?
+  nationality         String?
+  maritalStatus       String
+
+  // occupation
+  entryDate          DateTime?
+  groupOfPeople      String?
+  jobTitle           String?
+  activationCode     String? // max 5 digits
+  graduation         String?
+  vocationalTraining String?
+  AUG                String?
+  contractForm       String?
+  employmentStatus   String?
+  multipleEmployment String?
+  weeklyWorkHours    Int?
+  dailyWorkHours     Int?
+
+  // taxes
+  typeOfEmployment     String?
+  identificationNumber String?
+
+  // social insurance
+  healthOrLongTermInsurance String?
+  healthInsurance           String?
+  parenthoodInPrimary       String?
+  pensionInsurance          String?
+  unemploymentInsurance     String?
+  socialSecurityNumber      String?
+
+  // fee
+  typeOfPayment String?
+  hourWage      Float?
+  IBAN          String?
+  BIC           String?
+
+  extraInfo String @db.Text
+
+  workingPapersUrls Json @default("[]")
+
+  role EMPLOYY_ROLE?
+
+  branches Branch[]
+
+  team   Team? @relation("team_members", fields: [teamId], references: [id])
+  teamId Int?
+
+  leadingTeam Team? @relation("team_leader")
+
+  // TODO review
+  managedDepartments Department[]
+  departments        Department[] @relation("department_employees")
+
+  @@id([id])
+}
+
+model Branch {
+  id       Int     @id @default(autoincrement())
+  name     String
+  location String?
+
+  employees Employee[]
+
+  teams   Team[]
+  clients Client[]
+
+  @@map("branches")
+}
+
+model Team {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  teamLeader   Employee? @relation("team_leader", fields: [teamLeaderId], references: [id])
+  teamLeaderId Int?      @unique
+
+  employees Employee[] @relation("team_members")
+
+  branch   Branch @relation(fields: [branchId], references: [id])
+  branchId Int
+
+  @@map("teams")
+}
+
+model Client {
+  id Int @id @default(autoincrement())
+
+  mainUser User? @relation("main_user", fields: [userId], references: [id])
+  userId   Int?  @unique
+
+  users User[]
+
+  branch   Branch @relation(fields: [branchId], references: [id])
+  branchId Int
+
+  @@map("clients")
+}
+
+model User {
+  id      Int      @id @default(autoincrement())
+  account Acccount @relation(fields: [id], references: [id])
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId Int
+
+  mainUserIn Client? @relation("main_user")
+
+  @@map("client_users")
+}
+
+model Email {
+  id        Int      @id @default(autoincrement())
+  subject   String
+  content   String?
+  createdAt DateTime @default(now())
+
+  sender   Acccount @relation("user_sended_emails", fields: [senderId], references: [id])
+  senderId Int
+
+  receivers Acccount[] @relation("user_received_emails")
+
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  files File[]
+
+  parentEmail   Email? @relation("reply_to_email", fields: [parentEmailId], references: [id])
+  parentEmailId Int?   @unique
+
+  childEmail Email? @relation("reply_to_email")
+
+  @@map("emails")
+}
+
+model WriteableDocument {
+  id        Int      @id @default(autoincrement())
+  name      String
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId Int?        @unique
+}
+
+model Category {
+  id               Int     @id @default(autoincrement())
+  clientVisibility Boolean @default(false)
+
+  files File[]
+
+  folders Folder[]
+
+  emails Email[]
+
+  @@map("categories")
+}
+
+model Folder {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parentFolder   Folder? @relation("child_folders", fields: [parentFolderId], references: [id])
+  parentFolderId Int?
+
+  folders Folder[] @relation("child_folders")
+
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  files File[]
+
+  @@map("folders")
+}
+
+model File {
+  id        Int      @id @default(autoincrement())
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   Acccount @relation(fields: [userId], references: [id])
+  userId Int
+
+  folder   Folder? @relation(fields: [folderId], references: [id])
+  folderId Int?
+
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+
+  email   Email? @relation(fields: [emailId], references: [id])
+  emailId Int?
+
+  @@map("files")
+}
+
+model Notification {
+  id      Int     @id @default(autoincrement())
+  title   String
+  content String?
+
+  usre   Acccount @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@map("notifications")
+}
+
+model ContactUsMessages {
+  id          Int     @id @default(autoincrement())
+  name        String  @db.Text
+  email       String
+  title       String
+  description String
+  isReaded    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@map("contact_us_messages")
+}
+
+// enums
+enum ACCOUNT_STATUS {
+  active
+  archive
+}
+
+enum GENDER {
+  male
+  female
+}
+
+enum EMPLOYY_ROLE {
+  manager
+  marketingStuff
+  teamLeader
+  employee
+}

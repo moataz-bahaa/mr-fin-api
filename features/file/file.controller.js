@@ -1,0 +1,54 @@
+import { StatusCodes } from 'http-status-codes';
+import prisma from '../../prisma/client.js';
+import { BadRequestError } from '../../utils/errors.js';
+import { toNumber } from '../../utils/index.js';
+
+export const getFilesInFolder = async (req, res, next) => {
+  const folderId = toNumber(req.params.id);
+
+  const files = await prisma.file.findMany({
+    where: {
+      folderId,
+    },
+  });
+
+  res.status(StatusCodes.OK).json({
+    files,
+  });
+};
+
+export const postFile = async (req, res, next) => {
+  if (!req.file) {
+    throw new BadRequestError('no file attached');
+  }
+
+  const data = {
+    userId: req.user.id,
+    url: req.file?.path,
+    folderId: req.body.folderId,
+    categoryId: req.body.categoryId,
+  };
+
+  const file = await prisma.file.create({ data });
+
+  res.status(StatusCodes.CREATED).json({
+    message: 'file created',
+    file,
+  });
+};
+
+export const deleteFile = async (req, res, next) => {
+  const fileId = toNumber(req.params.id);
+
+  await prisma.file.findUniqueOrThrow({
+    where: {
+      id: fileId,
+    },
+  });
+
+  await prisma.file.delete({
+    where: {
+      id: fileId,
+    },
+  });
+};

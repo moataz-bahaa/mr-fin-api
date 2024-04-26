@@ -1,0 +1,12 @@
+--------------------------------server-------------
+85.215.168.53
+root
+cGZdoRUgowN2
+
+--------------------------------------------------------------------------------
+admin
+employee
+user -> client user -> company employee
+
+
+complete from column 6 -> customers/clients
