@@ -1,41 +1,44 @@
+import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'public/files');
+    cb(null, 'public/uploads');
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now().toString() + file.originalname);
+    const uniqueFileName = `${uuidv4()}+${file.originalname.replace(
+      /\s/g,
+      ''
+    )}`;
+    cb(null, uniqueFileName);
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  if (
-    file.mimetype === 'image/png' ||
-    file.mimetype === 'image/jpg' ||
-    file.mimetype === 'image/jpeg'
-  ) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
+export const upload = multer({ storage });
 
-const upload = multer({ storage, fileFilter });
+/**
+ * @param {string[]} urls
+ * @returns {void}
+ */
+export const clearFiles = (...urls) => {
+  urls.forEach((url) => {
+    try {
+      if (!url) return;
+      const index = url.indexOf('public');
+      if (index == -1) return;
 
-export const clearFile = (url) => {
-  if (url?.startsWith('http')) return;
+      const filePath = path.resolve(url.slice(index));
 
-  const filePath = path.resolve(url);
-
-  fs.unlink(filePath, (err) => {
-    if (err) {
-      console.error(err);
-      // throw err;
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error('failed to remove file', err);
+          // throw err;
+        }
+      });
+    } catch (error) {
+      console.log('failed to remove file', error);
     }
   });
 };
-
-export default upload;

@@ -1,13 +1,17 @@
 import { Router } from 'express';
 import {
+  getMe,
   postChangePassword,
-  postSignin,
   postForgetPassword,
-} from './user.controller.js';
+  postLogin,
+} from './auth.controller.js';
+import { isAuth } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
 
-router.post('/signin', postSignin);
+router.post('/login', postLogin);
+
+router.get('/me', isAuth, getMe)
 
 router.post('/change-password', postChangePassword);
 

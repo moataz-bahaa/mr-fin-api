@@ -1,0 +1,52 @@
+
+
+client:-
+
+each client is assigned to one team
+
+assign client to team endpoint
+
+
+cleint actions:
+  - Message writing
+  - Call
+  - Video conference
+  - Send fax
+  - Fax (FA)
+  - Messages to FA
+  - Appointment for consultation
+  - Document writing
+  - Invoices
+  - Upload receipt
+  - Provide client documents
+  - Edit documents
+  - Evaluations
+  - Message history
+  - Documents history
+  - Invoice
+  - Mandate contract
+  - a power of attorney
+  - Change customer data
+  - Insert customer data
+
+
+message:
+  from
+  to
+  subject
+  content
+  files[]
+
+
+ask more about this feature
+fax:
+  from
+  to
+  date
+  subject
+  senderPhone
+  receiverPhone
+  senderFax
+  receiverFax
+  pageNumber
+

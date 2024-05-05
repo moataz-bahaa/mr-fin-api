@@ -1,0 +1,119 @@
+import prisma from '../prisma/client.js';
+import { BadRequestError } from './errors.js';
+
+/**
+ * @param {number} totalCount
+ * @param {number} count
+ * @returns {number}
+ */
+export const calcNumberOfPages = (totalCount, count) =>
+  Math.ceil(totalCount / count);
+
+/**
+ *
+ * @param {string} str
+ * @returns {object}
+ */
+export const parseJson = (str) => {
+  if (typeof str === 'object') return str;
+  return JSON.parse(str ? str : '{}');
+};
+
+/**
+ * @param {any} value
+ * @returns {number}
+ */
+export const toNumber = (value) => {
+  const number = Number(value);
+  if (isNaN(number)) {
+    throw new BadRequestError('plz provide correct number');
+  }
+
+  return number;
+};
+
+export const getPageAndLimitFromQurey = (query) => {
+  let page = query.page ?? 1;
+  page = toNumber(page);
+
+  let limit = query.limit ?? 10;
+  limit = toNumber(limit);
+
+  return {
+    page,
+    limit,
+  };
+};
+
+/**
+ * @param {object} req
+ * @returns {string}
+ */
+const getBaseUrl = (req) => `${req.protocol}://${req.get('host')}`;
+
+/**
+ * @param {object} req
+ * @param {string} path
+ * @returns {string}
+ */
+export const getUrl = (req, path) => `${getBaseUrl(req)}/${path}`;
+
+export const validateJoi = (JoiSchema, data) => {
+  const { error, value } = JoiSchema.validate(data);
+  if (error) {
+    throw new BadRequestError(error);
+  }
+  return value;
+};
+
+/**
+ * @param {number} totalCount
+ * @param {number} count
+ * @returns {object}
+ */
+export const paginationInfo = (totalCount, count) => {
+  return {
+    totalCount,
+    numberOfPages: Math.ceil(totalCount / count),
+  };
+};
+
+/**
+ *
+ * @param {string} name
+ * @param {number} limit
+ * @param {number} page
+ * @param {object | undefined} filter
+ * @param {object | undefined} params
+ * @returns
+ */
+export const getPagination = async (
+  name,
+  page,
+  limit,
+  filter = {},
+  params = {}
+) => {
+  // @ts-ignore
+  const totalCount = await prisma[name].count({
+    where: filter,
+  });
+
+  // @ts-ignore
+  const data = await prisma[name].findMany({
+    where: filter,
+    take: limit,
+    skip: (page - 1) * limit,
+    ...params,
+  });
+
+  return {
+    ...paginationInfo(totalCount, limit),
+    [`${name}s`]: data,
+  };
+};
+
+export const getAdminAccountId = async () => {
+  const admin = await prisma.admin.findFirst();
+  return admin.id;
+};

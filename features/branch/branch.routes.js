@@ -1,25 +1,9 @@
 import { Router } from 'express';
-import {
-  addEmployeesToBranch,
-  deleteBranch,
-  deleteEmployeesFromBranch,
-  getBranches,
-  patchBranch,
-  postBranch,
-} from './branch.controller.js';
+import { isAdmin, isAuth } from '../../middlewares/auth.middleware.js';
+import { postBranch } from './branch.controller.js';
 
 const router = Router();
 
-router.get('/', getBranches);
-
-router.post('/', postBranch);
-
-router.patch('/:id', patchBranch);
-
-router.delete('/:id', deleteBranch);
-
-router.post('/employees', addEmployeesToBranch);
-
-router.delete('/employees', deleteEmployeesFromBranch);
+router.post('/', isAuth, isAdmin, postBranch);
 
 export default router;

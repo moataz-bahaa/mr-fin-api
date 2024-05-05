@@ -1,98 +1,41 @@
+import { hashPassword } from '../libs/bcrypt.js';
+import { getAdminAccountId } from '../utils/helpers.js';
 import prisma from './client.js';
-import fs from 'fs';
 
 (async () => {
   try {
-    const folder = await prisma.folder.create({
-      data: {
-        files: {
-          create: [
-            {
-              url: 'one',
-            },
-            {
-              url: 'one',
-            },
-            {
-              url: 'one',
-            },
-            {
-              url: 'one',
-            },
-          ],
-        },
-        folders: {
-          create: [
-            {
-              files: {
-                create: {
-                  url: 'test',
-                },
-              },
-              folders: {
-                create: {
-                  folders: {
-                    create: {
-                      folders: {
-                        create: {
-                          folders: {
-                            create: {
-                              files: {
-                                create: {
-                                  url: 'test 3',
-                                },
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            {
-              files: {
-                create: {
-                  url: 'test',
-                },
-              },
-            },
-          ],
-        },
-      },
-      include: {
-        files: true,
-        folders: {
-          include: {
-            files: true,
-            folders: {
-              include: {
-                files: true,
-                folders: {
-                  include: {
-                    files: true,
-                    folders: {
-                      include: {
-                        files: true,
-                        folders: {
-                          include: {
-                            files: true,
-                            folders: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
+    const adminAccountId = await getAdminAccountId();
+    if (!adminAccountId) {
+      await prisma.admin.create({
+        data: {
+          name: 'Admin Test',
+          account: {
+            create: {
+              userNameOrEmail: 'admin',
+              hashedPassword: await hashPassword('328221'),
             },
           },
         },
-      },
-    });
+      });
+    }
 
-    fs.writeFileSync('test.json', JSON.stringify(folder));
+    // await prisma.branch.createMany({
+    //   data: [
+    //     {
+    //       name: 'Minya',
+    //     },
+    //     {
+    //       name: 'Cairo',
+    //     },
+    //     {
+    //       name: 'German',
+    //     },
+    //     {
+    //       name: 'Gaza',
+    //     },
+    //   ],
+    // });
+
   } catch (err) {
     console.log(err);
   }

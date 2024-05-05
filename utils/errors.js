@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
+import { MESSAGES } from './messages.js';
 
 class CustomError extends Error {
   constructor(message) {

@@ -10,3 +10,61 @@ user -> client user -> company employee
 
 
 complete from column 6 -> customers/clients
+
+
+
+finish schema
+finsh 20 endpoint
+
+
+
+
+-------------------------endpoints-------------------
+dont't forget branch specific endpoints
+employees:
+  - get with search and status
+  - add
+  - move to another branch
+
+team:
+  - get all for specific user with members and
+  - tasks of teams
+  - get by id
+  - assing cleint to specific team with sepcific services
+  - add employee to team
+  - remove employee to team
+
+team tasks
+- get team tasks (all/completed)
+
+
+messages
+  - add
+  - get by cleint/employee/status (can be archived)
+
+task
+  - add
+  - get all (all/completed/uncompleted)
+  - get one
+
+daily report
+  - add
+  - get all
+
+productivity:
+  - get productivity for employees with clients
+    - you can use tasks/daily reports and teams to acheive the above
+  
+Invoices
+  - get invoices per client with
+    - monthly total
+    - anual total
+  
+client calculator
+  - get client work details and which employee who did that work and employees who are working with that client
+
+
+complete from
+https://www.figma.com/file/98C7dz8DKuIlhkJGXRfTnN/standared-map?type=design&node-id=576-1638&mode=design&t=e9u2ammagE4sCYrl-4
+
+

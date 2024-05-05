@@ -7,11 +7,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Service {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+
+  clients ClientService[]
+
+  @@map("services")
+}
+
+model Branch {
+  id       Int     @id @default(autoincrement())
+  name     String
+  location String?
+
+  managerId Int?      @unique
+  manger    Employee? @relation("branch_manager", fields: [managerId], references: [id])
+
+  employees Employee[]
+
+  teams Team[]
+
+  clients Client[]
+
+  @@map("branches")
+}
+
 model Acccount {
   id              Int            @id @default(autoincrement())
   userNameOrEmail String         @unique
   hashedPassword  String
-  tokens          Json           @default("[]")
   status          ACCOUNT_STATUS @default(active)
   isOnline        Boolean        @default(false)
   lastLoginAt     DateTime?
@@ -19,7 +45,7 @@ model Acccount {
 
   admin    Admin?
   employee Employee?
-  user     User?
+  client   Client?
 
   sendedEmails   Email[]        @relation("user_sended_emails")
   receivedEmails Email[]        @relation("user_received_emails")
@@ -39,23 +65,9 @@ model Admin {
   @@map("admins")
 }
 
-model Department {
-  id   Int    @id @default(autoincrement())
-  name String
-
-  employees Employee[] @relation("department_employees")
-
-  manager   Employee? @relation(fields: [managerId], references: [id])
-  managerId Int?
-
-  writeableDocument WriteableDocument?
-
-  @@map("departments")
-}
-
 model Employee {
-  id   Int
-  user Acccount @relation(fields: [id], references: [id])
+  id      Int
+  account Acccount @relation(fields: [id], references: [id])
 
   // personal details
   personalNumber      String?
@@ -75,7 +87,7 @@ model Employee {
   entryDate          DateTime?
   groupOfPeople      String?
   jobTitle           String?
-  activationCode     String? // max 5 digits
+  activationCode     String?
   graduation         String?
   vocationalTraining String?
   AUG                String?
@@ -103,18 +115,18 @@ model Employee {
   IBAN          String?
   BIC           String?
 
-  extraInfo String @db.Text
+  extraInfo                     String? @db.Text
+  workingPapersUrls             Json    @default("[]")
+  approvalForInclusionInPayroll Boolean @default(false)
+  roleId                        Int
+  branchId                      Int
+  teamId                        Int?
 
-  workingPapersUrls Json @default("[]")
-
-  role EMPLOYY_ROLE?
-
-  branches Branch[]
-
-  team   Team? @relation("team_members", fields: [teamId], references: [id])
-  teamId Int?
-
-  leadingTeam Team? @relation("team_leader")
+  leadingTeam      Team?        @relation("team_leader")
+  role             EmployeeRole @relation(fields: [roleId], references: [id])
+  branch           Branch       @relation(fields: [branchId], references: [id])
+  mangerInBranches Branch[]     @relation("branch_manager")
+  team             Team?        @relation("team_members", fields: [teamId], references: [id])
 
   // TODO review
   managedDepartments Department[]
@@ -123,17 +135,12 @@ model Employee {
   @@id([id])
 }
 
-model Branch {
-  id       Int     @id @default(autoincrement())
-  name     String
-  location String?
+model EmployeeRole {
+  id         Int    @id @default(autoincrement())
+  name       String @unique
+  priviliges Json   @default("{}")
 
   employees Employee[]
-
-  teams   Team[]
-  clients Client[]
-
-  @@map("branches")
 }
 
 model Team {
@@ -145,6 +152,8 @@ model Team {
 
   employees Employee[] @relation("team_members")
 
+  clients Client[]
+
   branch   Branch @relation(fields: [branchId], references: [id])
   branchId Int
 
@@ -152,29 +161,95 @@ model Team {
 }
 
 model Client {
-  id Int @id @default(autoincrement())
+  id      Int
+  account Acccount @relation(fields: [id], references: [id])
 
-  mainUser User? @relation("main_user", fields: [userId], references: [id])
-  userId   Int?  @unique
+  anrede                   String?
+  title                    String?
+  benutzername             String
+  name                     String
+  vomame                   String?
+  kurzbezeichnung          String?
+  bemerkung                String?
+  strasseHausnrZusatz      String?
+  adresserganzung          String?
+  postleitzahlOrt          String
+  landLaenderkuerzel       String?
+  bemerkungAddress         String?
+  telefonFestnetz          String?
+  telefonMobil             String?
+  fax                      String?
+  gender                   String?
+  birthName                String?
+  gabatiot                 String?
+  gebunsatum               String?
+  placeOfDeath             String?
+  diedOn                   DateTime?
+  retion                   String?
+  federalState             String?
+  maritalStatus            String?
+  sinceThen                DateTime?
+  propertyRegime           String?
+  unlimitedTaxLiability    Boolean?
+  taxIdentificationNumber  String?
+  employer                 String?
+  pensionInsuranceNumber   String?
+  pensionInsuranceProvider String?
+  predisposition           String?
+  iban                     String?
+  customerNumber           String?
+  bankCodeName             String?
+  taxNumber                String?
+  magpieTaxNumber          String?
+  powerOfDelivery          String?
+  validFrom                DateTime?
+  validUntil               DateTime?
+  commentTaxNumber         String?
+  officialNumberName       String?
+  designationTaxOffice     String?
+  commentTaxOffice         String?
+  taxAccount               String?
+  branchId                 Int
+  teamId                   Int?
 
-  users User[]
+  branch Branch @relation(fields: [branchId], references: [id])
 
-  branch   Branch @relation(fields: [branchId], references: [id])
-  branchId Int
+  employeeDailyReports EmployeeDailyReport[]
 
+  team Team? @relation(fields: [teamId], references: [id])
+
+  services ClientService[]
+
+  files File[]
+
+  @@id([id])
   @@map("clients")
 }
 
-model User {
-  id      Int      @id @default(autoincrement())
-  account Acccount @relation(fields: [id], references: [id])
+model ClientService {
+  id Int @id @default(autoincrement())
+
+  sesrvice  Service @relation(fields: [serviceId], references: [id])
+  serviceId Int
 
   client   Client @relation(fields: [clientId], references: [id])
   clientId Int
 
-  mainUserIn Client? @relation("main_user")
+  isCompleted Boolean @default(false)
+}
 
-  @@map("client_users")
+model EmployeeDailyReport {
+  id        Int      @id @default(autoincrement())
+  sign      String
+  month     String
+  beginning DateTime
+  break     DateTime
+  end       DateTime
+  remarks   String?
+  files     File[]
+
+  client   Client? @relation(fields: [clientId], references: [id])
+  clientId Int?
 }
 
 model Email {
@@ -250,8 +325,8 @@ model File {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user   Acccount @relation(fields: [userId], references: [id])
-  userId Int
+  user   Acccount? @relation(fields: [userId], references: [id])
+  userId Int?
 
   folder   Folder? @relation(fields: [folderId], references: [id])
   folderId Int?
@@ -261,6 +336,12 @@ model File {
 
   email   Email? @relation(fields: [emailId], references: [id])
   emailId Int?
+
+  employeeDailyReport   EmployeeDailyReport? @relation(fields: [employeeDailyReportId], references: [id])
+  employeeDailyReportId Int?
+
+  client   Client? @relation(fields: [clientId], references: [id])
+  clientId Int?
 
   @@map("files")
 }
@@ -289,6 +370,35 @@ model ContactUsMessages {
   @@map("contact_us_messages")
 }
 
+model Department {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  employees Employee[] @relation("department_employees")
+
+  manager   Employee? @relation(fields: [managerId], references: [id])
+  managerId Int?
+
+  writeableDocument WriteableDocument?
+
+  @@map("departments")
+}
+
+model Task {
+  id Int @id @default(autoincrement())
+  // TODO i don't know how to handle this
+}
+
+model CallsHistory {
+  id Int @id @default(autoincrement())
+  // TODO
+}
+
+model Invoice {
+  id Int @id @default(autoincrement())
+  // TODO
+}
+
 // enums
 enum ACCOUNT_STATUS {
   active
@@ -298,11 +408,4 @@ enum ACCOUNT_STATUS {
 enum GENDER {
   male
   female
-}
-
-enum EMPLOYY_ROLE {
-  manager
-  marketingStuff
-  teamLeader
-  employee
 }

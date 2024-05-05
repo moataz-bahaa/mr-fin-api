@@ -1,0 +1,16 @@
+export const MESSAGES = {
+  UPDATED: 'Updated Successfully',
+  DELETED: 'deleted Successfully',
+  CREATED: 'created Successfully',
+  UNAUTHENTICATED: 'You do not have permissions',
+  NOT_FOUND: 'not found',
+  BAD_REQUEST: 'pleae provide all required data',
+  REGISTER: 'signned up successfully',
+  WRONG_EMAIL_OR_PASS: 'Wrong email or password',
+  WRONG_PASSWORD: 'Wrong password',
+  EMAIL_EXISTS: 'User Name or Email already exists',
+  INVALID_TOKEN: 'invalid token',
+  IMAGE_DELETED: 'image deleted successfully',
+  ORDER_ACTIVATED: 'order accepted',
+  ORDER_CANCELLED: 'order cancelled',
+};
