@@ -120,5 +120,5 @@ export const getPagination = async (
 
 export const getAdminAccountId = async () => {
   const admin = await prisma.admin.findFirst();
-  return admin.id;
+  return admin?.id;
 };
