@@ -21,8 +21,21 @@ export const AuthService = {
       },
       include: {
         admin: true,
-        client: true,
-        employee: true,
+        client: {
+          include: {
+            files: true,
+            services: true,
+            team: true,
+          }
+        },
+        employee: {
+          include: {
+            role: true,
+            team: true,
+            workingPapers: true,
+            leadingTeam: true,
+          },
+        },
       },
     });
 

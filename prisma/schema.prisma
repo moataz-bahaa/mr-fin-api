@@ -116,11 +116,12 @@ model Employee {
   BIC           String?
 
   extraInfo                     String? @db.Text
-  workingPapersUrls             Json    @default("[]")
   approvalForInclusionInPayroll Boolean @default(false)
   roleId                        Int
   branchId                      Int
   teamId                        Int?
+
+  workingPapers File[]
 
   leadingTeam      Team?        @relation("team_leader")
   role             EmployeeRole @relation(fields: [roleId], references: [id])
@@ -342,6 +343,9 @@ model File {
 
   client   Client? @relation(fields: [clientId], references: [id])
   clientId Int?
+
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+  employeeId Int?
 
   @@map("files")
 }

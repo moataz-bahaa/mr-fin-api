@@ -1,7 +1,5 @@
 import Joi from 'joi';
 
-export const ForeignKeySchema = Joi.number().integer().positive();
-
 export const GenderSchema = Joi.string().valid('male', 'female').lowercase();
 
 export const BranchSchema = Joi.object({
@@ -9,6 +7,7 @@ export const BranchSchema = Joi.object({
   location: Joi.string(),
 });
 
+export const ForeignKeySchema = Joi.number().integer().positive();
 export const AccountSchema = Joi.object({
   userNameOrEmail: Joi.string().required(),
   password: Joi.string().required(),
@@ -69,7 +68,6 @@ export const EmployeeSchema = Joi.object({
   roleId: ForeignKeySchema.required(),
   branchId: ForeignKeySchema.required(),
   teamId: ForeignKeySchema.optional(),
-  // workingPapersUrls: Joi.array(),
 });
 
 export const TeamSchema = Joi.object({
@@ -135,4 +133,10 @@ export const UpdateClientSchema = ClientSchema.keys({
   name: Joi.string(),
   postleitzahlOrt: Joi.string(),
   benutzername: Joi.string(),
+});
+
+export const UpdateEmployeeSchema = EmployeeSchema.keys({
+  account: OptionalAccountSchema.optional().default({}),
+  branchId: ForeignKeySchema,
+  roleId: ForeignKeySchema,
 });

@@ -57,7 +57,7 @@ export const getClients = async (req, res, next) => {
     });
   }
 
-  const clients = await getPagination('client', page, limit, filter, {
+  const data = await getPagination('client', page, limit, filter, {
     include: {
       account: {
         select: accountDataToSelect,
@@ -67,7 +67,7 @@ export const getClients = async (req, res, next) => {
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
-    clients,
+    ...data,
   });
 };
 
@@ -179,7 +179,7 @@ export const postClient = async (req, res, next) => {
   });
 };
 
-export const putClient = async (req, res, next) => {
+export const patchClient = async (req, res, next) => {
   const id = toNumber(req.params.id);
   const {
     account: { userNameOrEmail, password, status },

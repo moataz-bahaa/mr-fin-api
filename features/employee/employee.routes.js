@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { upload } from '../../libs/upload.js';
+import { isAdmin, isAuth } from '../../middlewares/auth.middleware.js';
 import {
   deleteEmployee,
+  getEmployeeById,
+  getEmployeeRoles,
   getEmployees,
   patchEmployee,
   postEmployee,
@@ -9,11 +12,21 @@ import {
 
 const router = Router();
 
-router.get('/', getEmployees);
+router.get('/roles', getEmployeeRoles);
 
-router.post('/', upload.array('workingPapersUrls'), postEmployee);
+router.get('/branch/:branchId', getEmployees);
 
-router.patch('/:id', upload.single('file'), patchEmployee);
+router.post('/', isAuth, isAdmin, upload.array('workingPapers'), postEmployee);
+
+router.patch(
+  '/:id',
+  isAuth,
+  isAdmin,
+  upload.array('workingPapers'),
+  patchEmployee
+);
+
+router.get('/:id', getEmployeeById);
 
 router.delete('/:id', deleteEmployee);
 

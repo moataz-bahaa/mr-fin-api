@@ -5,8 +5,8 @@ import {
   deleteClient,
   getClientById,
   getClients,
+  patchClient,
   postClient,
-  putClient,
 } from './client.controller.js';
 
 const router = Router();
@@ -17,7 +17,7 @@ router.get('/:id', getClientById);
 
 router.post('/', isAuth, isAdmin, upload.array('files'), postClient);
 
-router.patch('/:id', isAdmin, isAdmin, upload.array('files'), putClient);
+router.patch('/:id', isAdmin, isAdmin, upload.array('files'), patchClient);
 
 router.delete('/:id', isAuth, isAdmin, deleteClient);
 

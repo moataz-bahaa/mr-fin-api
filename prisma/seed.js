@@ -36,6 +36,19 @@ import prisma from './client.js';
     //   ],
     // });
 
+    await prisma.employeeRole.createMany({
+      data: [
+        {
+          name: 'branch-manager',
+        },
+        {
+          name: 'team-leader',
+        },
+        {
+          name: 'employee',
+        },
+      ],
+    });
   } catch (err) {
     console.log(err);
   }

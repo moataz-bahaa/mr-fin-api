@@ -71,10 +71,15 @@ export const validateJoi = (JoiSchema, data) => {
  * @param {number} count
  * @returns {object}
  */
-export const paginationInfo = (totalCount, count) => {
+export const paginationInfo = (totalCount, count, page) => {
+  const numberOfPages = Math.ceil(totalCount / count);
   return {
     totalCount,
-    numberOfPages: Math.ceil(totalCount / count),
+    numberOfPages,
+    currentPage: page,
+    currentLimit: count,
+    hasNext: page < numberOfPages,
+    hasPrev: page > 1,
   };
 };
 
@@ -108,7 +113,7 @@ export const getPagination = async (
   });
 
   return {
-    ...paginationInfo(totalCount, limit),
+    paginationInfo: paginationInfo(totalCount, limit, page),
     [`${name}s`]: data,
   };
 };
