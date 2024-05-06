@@ -71,9 +71,10 @@ export const EmployeeSchema = Joi.object({
 });
 
 export const TeamSchema = Joi.object({
-  name: Joi.string().required(),
+  name: Joi.string(),
   teamLeaderId: ForeignKeySchema,
   branchId: ForeignKeySchema,
+  employees: Joi.array().items(ForeignKeySchema),
 });
 
 export const ClientSchema = Joi.object({
@@ -140,3 +141,10 @@ export const UpdateEmployeeSchema = EmployeeSchema.keys({
   branchId: ForeignKeySchema,
   roleId: ForeignKeySchema,
 });
+
+
+export const UpdateTeamSchema = Joi.object({
+  name: Joi.string(),
+  teamLeaderId: ForeignKeySchema,
+  branchId: ForeignKeySchema,
+})

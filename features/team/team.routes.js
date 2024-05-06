@@ -1,25 +1,27 @@
 import { Router } from 'express';
 import {
-  addEmployeesToTeam,
-  deleteEmployeesFromTeam,
   deleteTeam,
+  getTeamById,
   getTeams,
   patchTeam,
+  postAddEmployeesToTeam,
+  postRemoveEmployeesFromTeam,
   postTeam,
 } from './team.controller.js';
 
 const router = Router();
 
-router.get('/:branchId', getTeams);
+router.get('/branch/:branchId', getTeams);
+
+router.get('/:id', getTeamById);
 
 router.post('/', postTeam);
 
-router.patch('/:teamId', patchTeam);
+router.patch('/:id', patchTeam);
 
-router.delete('/:teamId', deleteTeam);
+router.delete('/:id', deleteTeam);
 
-router.post('/employees', addEmployeesToTeam);
-
-router.delete('/employees', deleteEmployeesFromTeam);
+router.post('/remove-employees', postRemoveEmployeesFromTeam);
+router.post('/add-employees', postAddEmployeesToTeam);
 
 export default router;

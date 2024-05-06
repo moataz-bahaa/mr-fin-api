@@ -29,10 +29,8 @@ employees:
 team:
   - get all for specific user with members and
   - tasks of teams
-  - get by id
   - assing cleint to specific team with sepcific services
-  - add employee to team
-  - remove employee to team
+  - check logic when moveing to/from team and setting teamleader
 
 team tasks
 - get team tasks (all/completed)

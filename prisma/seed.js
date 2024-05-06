@@ -19,22 +19,22 @@ import prisma from './client.js';
       });
     }
 
-    // await prisma.branch.createMany({
-    //   data: [
-    //     {
-    //       name: 'Minya',
-    //     },
-    //     {
-    //       name: 'Cairo',
-    //     },
-    //     {
-    //       name: 'German',
-    //     },
-    //     {
-    //       name: 'Gaza',
-    //     },
-    //   ],
-    // });
+    await prisma.branch.createMany({
+      data: [
+        {
+          name: 'Minya',
+        },
+        {
+          name: 'Cairo',
+        },
+        {
+          name: 'German',
+        },
+        {
+          name: 'Gaza',
+        },
+      ],
+    });
 
     await prisma.employeeRole.createMany({
       data: [

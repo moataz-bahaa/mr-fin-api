@@ -30,7 +30,7 @@ app.use(isAuth);
 app.use('/api/branches', branchRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/clients', clientRoutes);
-app.use('/api/branches/teams', teamRoutes);
+app.use('/api/teams', teamRoutes);
 
 // error handler
 app.use(errorHandler);

@@ -146,7 +146,7 @@ model EmployeeRole {
 
 model Team {
   id   Int    @id @default(autoincrement())
-  name String
+  name String?
 
   teamLeader   Employee? @relation("team_leader", fields: [teamLeaderId], references: [id])
   teamLeaderId Int?      @unique
