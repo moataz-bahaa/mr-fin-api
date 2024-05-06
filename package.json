@@ -5,7 +5,7 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "node app.js",
     "dev": "nodemon index",
     "seed": "node prisma/seed.js",
     "dummy": "node prisma/dummy.js"
