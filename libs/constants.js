@@ -7,7 +7,8 @@ export const STATUS = {
 
 export const accountDataToSelect = {
   id: true,
-  userNameOrEmail: true,
+  email: true,
+  profileImageUrl: true,
   status: true,
   isOnline: true,
   lastLoginAt: true,

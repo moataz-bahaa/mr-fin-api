@@ -8,6 +8,7 @@
     "start": "node app.js",
     "dev": "nodemon index",
     "seed": "node prisma/seed.js",
+    "test": "node prisma/test.js",
     "dummy": "node prisma/dummy.js"
   },
   "keywords": [],

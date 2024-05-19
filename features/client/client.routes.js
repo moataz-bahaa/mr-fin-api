@@ -15,9 +15,39 @@ router.get('/branch/:branchId', getClients);
 
 router.get('/:id', getClientById);
 
-router.post('/', isAuth, isAdmin, upload.array('files'), postClient);
+router.post(
+  '/',
+  isAuth,
+  isAdmin,
+  upload.fields([
+    {
+      name: 'profileImage',
+      maxCount: 1,
+    },
+    {
+      name: 'files',
+      maxCount: 20,
+    },
+  ]),
+  postClient
+);
 
-router.patch('/:id', isAdmin, isAdmin, upload.array('files'), patchClient);
+router.patch(
+  '/:id',
+  isAdmin,
+  isAdmin,
+  upload.fields([
+    {
+      name: 'profileImage',
+      maxCount: 1,
+    },
+    {
+      name: 'files',
+      maxCount: 20,
+    },
+  ]),
+  patchClient
+);
 
 router.delete('/:id', isAuth, isAdmin, deleteClient);
 

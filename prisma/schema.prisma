@@ -36,12 +36,13 @@ model Branch {
 
 model Acccount {
   id              Int            @id @default(autoincrement())
-  userNameOrEmail String         @unique
+  email           String         @unique @map("userNameOrEmail")
   hashedPassword  String
   status          ACCOUNT_STATUS @default(active)
   isOnline        Boolean        @default(false)
   lastLoginAt     DateTime?
   logoutAt        DateTime?
+  profileImageUrl String?
 
   admin    Admin?
   employee Employee?
@@ -70,24 +71,28 @@ model Employee {
   account Acccount @relation(fields: [id], references: [id])
 
   // personal details
-  personalNumber      String?
-  title               String?
-  firstName           String?
-  lastName            String?
-  streetOrHouseNumber String?
-  zipOrCity           String?
-  country             String?
-  phone               String?
-  gender              GENDER?
-  birthDate           DateTime?
-  nationality         String?
-  maritalStatus       String
+  personalNumber String?
+  salutation     String?
+  title          String?
+  firstName      String?
+  lastName       String? // 3 inputs
+  street         String?
+  houseNumber    String?   @map("housNumber")
+  city           String?
+  postalCode     String?   @map("zipCode")
+  country        String?
+  phone          String?
+  gender         GENDER?
+  birthDate      DateTime?
+  nationality    String?
+  username       String?
+  maritalStatus  String
 
   // occupation
   entryDate          DateTime?
   groupOfPeople      String?
   jobTitle           String?
-  activationCode     String?
+  jobCode            String?   @map("activationCode")
   graduation         String?
   vocationalTraining String?
   AUG                String?
@@ -98,8 +103,8 @@ model Employee {
   dailyWorkHours     Int?
 
   // taxes
-  typeOfEmployment     String?
-  identificationNumber String?
+  typeOfEmployment        String?
+  taxIdentificationNumber String? @map("identificationNumber")
 
   // social insurance
   healthOrLongTermInsurance String?
@@ -117,9 +122,10 @@ model Employee {
 
   extraInfo                     String? @db.Text
   approvalForInclusionInPayroll Boolean @default(false)
-  roleId                        Int
-  branchId                      Int
-  teamId                        Int?
+
+  roleId   Int
+  branchId Int
+  teamId   Int?
 
   workingPapers File[]
 
@@ -145,7 +151,7 @@ model EmployeeRole {
 }
 
 model Team {
-  id   Int    @id @default(autoincrement())
+  id   Int     @id @default(autoincrement())
   name String?
 
   teamLeader   Employee? @relation("team_leader", fields: [teamLeaderId], references: [id])
@@ -165,53 +171,59 @@ model Client {
   id      Int
   account Acccount @relation(fields: [id], references: [id])
 
-  anrede                   String?
-  title                    String?
-  benutzername             String
-  name                     String
-  vomame                   String?
-  kurzbezeichnung          String?
-  bemerkung                String?
-  strasseHausnrZusatz      String?
-  adresserganzung          String?
-  postleitzahlOrt          String
-  landLaenderkuerzel       String?
-  bemerkungAddress         String?
-  telefonFestnetz          String?
-  telefonMobil             String?
-  fax                      String?
-  gender                   String?
-  birthName                String?
-  gabatiot                 String?
-  gebunsatum               String?
-  placeOfDeath             String?
-  diedOn                   DateTime?
-  retion                   String?
-  federalState             String?
-  maritalStatus            String?
-  sinceThen                DateTime?
-  propertyRegime           String?
-  unlimitedTaxLiability    Boolean?
-  taxIdentificationNumber  String?
-  employer                 String?
-  pensionInsuranceNumber   String?
-  pensionInsuranceProvider String?
-  predisposition           String?
-  iban                     String?
-  customerNumber           String?
-  bankCodeName             String?
-  taxNumber                String?
-  magpieTaxNumber          String?
-  powerOfDelivery          String?
-  validFrom                DateTime?
-  validUntil               DateTime?
-  commentTaxNumber         String?
-  officialNumberName       String?
-  designationTaxOffice     String?
-  commentTaxOffice         String?
-  taxAccount               String?
-  branchId                 Int
-  teamId                   Int?
+  salutation   String? @map("anrede")
+  title        String?
+  username     String? @map("benutzername")
+  name         String?
+  companyName  String? @map("vomame")
+  abbreviation String? @map("shortName")
+  comment      String? @map("bemerkung")
+
+  address1       String? @map("strasseHausnrZusatz")
+  address2       String? @map("adresserganzung")
+  zipCodeAndCity String? @map("postleitzahlOrt")
+  countryCode    String? @map("landLaenderkuerzel")
+  addressComment String?
+
+  phoneLandline String? @map("telefonFestnetz")
+  phoneMobile   String? @map("telefonMobil")
+  fax           String?
+
+  gender                     String?
+  maidenName                 String?
+  dateOfBirth                DateTime?
+  placeOfBirth               String?
+  placeOfDeath               String?
+  dateOfDeath                DateTime?
+  religion                   String?
+  federalState               String?
+  maritalStatus              String?
+  since                      DateTime?
+  maritalPropertyRegime      String?
+  unlimitedTaxLiability      Boolean?
+  taxation                   String?
+  taxIdentificationNumber    String?
+  profession                 String?
+  employer                   String?
+  socialSecurityNumber       String?
+  socialSecurityOrganization String?
+
+  IBAN               String? @map("iban")
+  bankCustomerNumber String?
+  bankCode           String?
+
+  taxNumber             String?
+  elsterTaxNumber       String?
+  deliveryAuthority     String?
+  validFrom             DateTime?
+  validUntil            DateTime?
+  taxNumberComment      String?
+  officialNumberName    String?
+  taxOfficeDesignation  String?
+  taxOfficeComment      String?
+
+  branchId Int
+  teamId   Int?
 
   branch Branch @relation(fields: [branchId], references: [id])
 
@@ -290,6 +302,7 @@ model WriteableDocument {
 
 model Category {
   id               Int     @id @default(autoincrement())
+  name             String
   clientVisibility Boolean @default(false)
 
   files File[]

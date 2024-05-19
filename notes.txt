@@ -67,3 +67,20 @@ https://www.figma.com/file/98C7dz8DKuIlhkJGXRfTnN/standared-map?type=design&node
 
 
 
+
+
+TODO endpoints:-
+get my team
+
+
+review employee and client data
+add team with employees and team leader will all data for frontend to test
+
+
+employee data:-
+
+محتاج تضيف فلتر team Id في الemployees
+او تخلي get all teams ترجع الداتا بتاعت الemployees
+
+
+check data types

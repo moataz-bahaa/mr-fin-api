@@ -16,13 +16,37 @@ router.get('/roles', getEmployeeRoles);
 
 router.get('/branch/:branchId', getEmployees);
 
-router.post('/', isAuth, isAdmin, upload.array('workingPapers'), postEmployee);
+router.post(
+  '/',
+  isAuth,
+  isAdmin,
+  upload.fields([
+    {
+      name: 'profileImage',
+      maxCount: 1,
+    },
+    {
+      name: 'workingPapers',
+      maxCount: 20,
+    },
+  ]),
+  postEmployee
+);
 
 router.patch(
   '/:id',
   isAuth,
   isAdmin,
-  upload.array('workingPapers'),
+  upload.fields([
+    {
+      name: 'profileImage',
+      maxCount: 1,
+    },
+    {
+      name: 'workingPapers',
+      maxCount: 20,
+    },
+  ]),
   patchEmployee
 );
 

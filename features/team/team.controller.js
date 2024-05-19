@@ -41,6 +41,13 @@ export const getTeams = async (req, res, next) => {
     },
     include: {
       teamLeader: true,
+      employees: {
+        include: {
+          account: {
+            select: accountDataToSelect,
+          },
+        },
+      },
     },
   });
 

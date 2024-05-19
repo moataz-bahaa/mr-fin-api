@@ -31,7 +31,7 @@ export const getEmployeeRoles = async (req, res, next) => {
 
 export const getEmployees = async (req, res, next) => {
   const branchId = toNumber(req.params.branchId);
-  const { search, status } = req.query;
+  const { search, status, teamId, excludedTeamId } = req.query;
   const { page, limit } = getPageAndLimitFromQurey(req.query);
 
   const filter = {
@@ -43,6 +43,11 @@ export const getEmployees = async (req, res, next) => {
           },
           {
             team: {
+              branchId,
+            },
+          },
+          {
+            leadingTeam: {
               branchId,
             },
           },
@@ -85,13 +90,57 @@ export const getEmployees = async (req, res, next) => {
     });
   }
 
-  const data = await getPagination('employee', page, limit, filter, {
-    include: {
-      account: {
-        select: accountDataToSelect,
+  if (teamId) {
+    filter.AND.push({
+      OR: [
+        {
+          // @ts-ignore
+          teamId: +teamId,
+        },
+        {
+          // @ts-ignore
+          leadingTeam: {
+            id: +teamId,
+          },
+        },
+      ],
+    });
+  }
+
+  if (excludedTeamId) {
+    filter.AND.push(
+      {
+        OR: [
+          {
+            // @ts-ignore
+            teamId: {
+              not: +excludedTeamId,
+            },
+          },
+          {
+            // @ts-ignore
+            teamId: null,
+          },
+        ],
       },
-    },
-  });
+      {
+        OR: [
+          {
+            leadingTeam: {
+              id: {
+                not: +excludedTeamId,
+              },
+            },
+          },
+          {
+            leadingTeam: null,
+          },
+        ],
+      }
+    );
+  }
+
+  const data = await getPagination('employee', page, limit, filter);
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
@@ -114,7 +163,9 @@ export const getEmployeeById = async (req, res, next) => {
       role: true,
       team: true,
       leadingTeam: true,
-      workingPapers: true,
+      workingPapers: {
+        select: fileDataToSelect,
+      },
     },
   });
 
@@ -126,7 +177,7 @@ export const getEmployeeById = async (req, res, next) => {
 
 export const postEmployee = async (req, res, next) => {
   const {
-    account: { userNameOrEmail, password },
+    account: { email, password },
     branchId,
     teamId,
     roleId,
@@ -135,7 +186,7 @@ export const postEmployee = async (req, res, next) => {
 
   const isUserNameExists = await prisma.acccount.findUnique({
     where: {
-      userNameOrEmail,
+      email,
     },
   });
 
@@ -144,11 +195,18 @@ export const postEmployee = async (req, res, next) => {
   }
 
   const files =
-    req.files?.map((f) => {
+    req.files?.workingPapers?.map((f) => {
       return {
         url: getUrl(req, f.path),
       };
     }) ?? [];
+
+  const profileImage = req.files?.profileImage;
+  let profileImageUrl = null;
+
+  if (profileImage) {
+    profileImageUrl = getUrl(req, profileImage?.[0]?.path);
+  }
 
   if (teamId) {
     data.team = {
@@ -172,8 +230,9 @@ export const postEmployee = async (req, res, next) => {
     data: {
       account: {
         create: {
-          userNameOrEmail,
+          email,
           hashedPassword,
+          profileImageUrl,
         },
       },
       branch: {
@@ -210,7 +269,7 @@ export const postEmployee = async (req, res, next) => {
 export const patchEmployee = async (req, res, next) => {
   const id = toNumber(req.params.id);
   const {
-    account: { userNameOrEmail, password, status },
+    account: { email, password, status },
     branchId,
     teamId,
     roleId,
@@ -223,24 +282,31 @@ export const patchEmployee = async (req, res, next) => {
     },
   });
 
-  if (userNameOrEmail) {
+  if (email) {
     const isUserNameExists = await prisma.acccount.findUnique({
       where: {
-        userNameOrEmail,
+        email,
       },
     });
 
-    if (isUserNameExists) {
+    if (isUserNameExists && isUserNameExists.id !== oldEmployee.id) {
       throw new BadRequestError(MESSAGES.EMAIL_EXISTS);
     }
   }
 
   const files =
-    req.files?.map((f) => {
+    req.files?.workingPapers?.map((f) => {
       return {
         url: getUrl(req, f.path),
       };
     }) ?? [];
+
+  const profileImage = req.files?.profileImage;
+  let profileImageUrl = null;
+
+  if (profileImage) {
+    profileImageUrl = getUrl(req, profileImage?.[0]?.path);
+  }
 
   if (teamId) {
     data.team = {
@@ -274,8 +340,8 @@ export const patchEmployee = async (req, res, next) => {
   }
   const account = {};
 
-  if (userNameOrEmail) {
-    account.userNameOrEmail = userNameOrEmail;
+  if (email) {
+    account.email = email;
   }
   if (status) {
     account.status = status;
@@ -283,6 +349,10 @@ export const patchEmployee = async (req, res, next) => {
 
   if (password) {
     account.hashedPassword = await hashPassword(password);
+  }
+
+  if (profileImageUrl) {
+    account.profileImageUrl = profileImageUrl;
   }
 
   const employee = await prisma.employee.update({

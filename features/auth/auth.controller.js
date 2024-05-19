@@ -11,16 +11,20 @@ import { validateJoi } from '../../utils/helpers.js';
 import { AuthService, getUserById } from './auth.service.js';
 
 export const postLogin = async (req, res) => {
-  const { userNameOrEmail, password } = validateJoi(AccountSchema, req.body);
+  const { email, password } = validateJoi(AccountSchema, req.body);
 
   const account = await prisma.acccount.findUnique({
-    where: { userNameOrEmail },
+    where: { email },
     include: {
       admin: true,
       client: true,
       employee: true,
     },
   });
+
+  if (!account) {
+    throw new BadRequestError('invalid credentials');
+  }
 
   const isPasswordValid = await comparePassword(
     password,
@@ -92,10 +96,10 @@ export const postChangePassword = async (req, res) => {
 
 // TODO optimize
 export const postForgetPassword = async (req, res) => {
-  const { email: userNameOrEmail } = req.body;
+  const { email } = req.body;
 
   const user = await prisma.acccount.findUnique({
-    where: { userNameOrEmail },
+    where: { email },
   });
 
   if (!user) {
@@ -112,7 +116,7 @@ export const postForgetPassword = async (req, res) => {
 
   const mailOptions = {
     from: 'your-email@gmail.com',
-    to: user.userNameOrEmail,
+    to: user.email,
     subject: 'Password Reset',
     text: `Click the following link to reset your password: ${resetToken}`,
   };

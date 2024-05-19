@@ -36,7 +36,7 @@ export const getPageAndLimitFromQurey = (query) => {
   let page = query.page ?? 1;
   page = toNumber(page);
 
-  let limit = query.limit ?? 10;
+  let limit = query.limit ?? 20;
   limit = toNumber(limit);
 
   return {

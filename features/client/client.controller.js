@@ -50,7 +50,7 @@ export const getClients = async (req, res, next) => {
     filter.OR.push({
       // @ts-ignore
       account: {
-        userNameOrEmail: {
+        email: {
           contains: search,
         },
       },
@@ -80,14 +80,7 @@ export const getClientById = async (req, res, next) => {
     },
     include: {
       account: {
-        select: {
-          id: true,
-          userNameOrEmail: true,
-          isOnline: true,
-          lastLoginAt: true,
-          logoutAt: true,
-          status: true,
-        },
+        select: accountDataToSelect,
       },
       branch: true,
       services: true,
@@ -106,7 +99,7 @@ export const getClientById = async (req, res, next) => {
 
 export const postClient = async (req, res, next) => {
   const {
-    account: { userNameOrEmail, password },
+    account: { email, password },
     branchId,
     teamId,
     ...data
@@ -114,7 +107,7 @@ export const postClient = async (req, res, next) => {
 
   const isUserNameExists = await prisma.acccount.findUnique({
     where: {
-      userNameOrEmail,
+      email,
     },
   });
 
@@ -123,11 +116,18 @@ export const postClient = async (req, res, next) => {
   }
 
   const files =
-    req.files?.map((f) => {
+    req.files?.files?.map((f) => {
       return {
         url: getUrl(req, f.path),
       };
     }) ?? [];
+
+  const profileImage = req.files?.profileImage;
+  let profileImageUrl = null;
+
+  if (profileImage) {
+    profileImageUrl = getUrl(req, profileImage?.[0]?.path);
+  }
 
   if (teamId) {
     data.team = {
@@ -143,8 +143,9 @@ export const postClient = async (req, res, next) => {
     data: {
       account: {
         create: {
-          userNameOrEmail,
+          email,
           hashedPassword,
+          profileImageUrl
         },
       },
       branch: {
@@ -182,7 +183,7 @@ export const postClient = async (req, res, next) => {
 export const patchClient = async (req, res, next) => {
   const id = toNumber(req.params.id);
   const {
-    account: { userNameOrEmail, password, status },
+    account: { email, password, status },
     branchId,
     teamId,
     ...data
@@ -194,24 +195,31 @@ export const patchClient = async (req, res, next) => {
     },
   });
 
-  if (userNameOrEmail) {
+  if (email) {
     const isUserNameExists = await prisma.acccount.findUnique({
       where: {
-        userNameOrEmail,
+        email,
       },
     });
 
-    if (isUserNameExists) {
+    if (isUserNameExists && isUserNameExists.id !== oldClient.id) {
       throw new BadRequestError(MESSAGES.EMAIL_EXISTS);
     }
   }
 
   const files =
-    req.files?.map((f) => {
+    req.files?.files?.map((f) => {
       return {
         url: getUrl(req, f.path),
       };
     }) ?? [];
+
+  const profileImage = req.files?.profileImage;
+  let profileImageUrl = null;
+
+  if (profileImage) {
+    profileImageUrl = getUrl(req, profileImage?.[0]?.path);
+  }
 
   if (teamId) {
     data.team = {
@@ -239,8 +247,8 @@ export const patchClient = async (req, res, next) => {
 
   const account = {};
 
-  if (userNameOrEmail) {
-    account.userNameOrEmail = userNameOrEmail;
+  if (email) {
+    account.email = email;
   }
   if (status) {
     account.status = status;
@@ -248,6 +256,10 @@ export const patchClient = async (req, res, next) => {
 
   if (password) {
     account.hashedPassword = await hashPassword(password);
+  }
+
+  if (profileImageUrl) {
+    account.profileImageUrl = profileImageUrl;
   }
 
   const client = await prisma.client.update({
