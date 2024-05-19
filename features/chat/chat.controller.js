@@ -1,5 +1,4 @@
 import { StatusCodes } from 'http-status-codes';
-import { sendMessage } from '../../libs/socket.js';
 import prisma from '../../prisma/client.js';
 import { ForbidenError } from '../../utils/errors.js';
 import { toNumber } from '../../utils/index.js';
@@ -33,130 +32,130 @@ export const getChats = async (req, res, next) => {
 export const getChatById = async (req, res, next) => {
   const chatId = toNumber(req.params.id);
 
-  const chat = await prisma.chat.findUniqueOrThrow({
-    where: {
-      id: chatId,
-    },
-    include: {
-      users: true,
-      lastMessage: true,
-    },
-  });
+  // const chat = await prisma.chat.findUniqueOrThrow({
+  //   where: {
+  //     id: chatId,
+  //   },
+  //   include: {
+  //     users: true,
+  //     lastMessage: true,
+  //   },
+  // });
 
-  res.status(StatusCodes.OK).json({
-    chat,
-  });
+  // res.status(StatusCodes.OK).json({
+  //   chat,
+  // });
 };
 
 export const getChatMessages = async (req, res, next) => {
   const chatId = toNumber(req.params.id);
 
-  const page = toNumber(req.query.page ?? 1);
-  const count = toNumber(req.query.count ?? 50);
+  // const page = toNumber(req.query.page ?? 1);
+  // const count = toNumber(req.query.count ?? 50);
 
-  const totalCount = await prisma.message.count({
-    where: {
-      chatId,
-    },
-  });
+  // const totalCount = await prisma.message.count({
+  //   where: {
+  //     chatId,
+  //   },
+  // });
 
-  const messages = await prisma.message.findMany({
-    where: {
-      chatId,
-    },
-    include: {
-      seenBy: true,
-      sender: true,
-      parentMessage: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-    take: count,
-    skip: (page - 1) * count,
-  });
+  // const messages = await prisma.message.findMany({
+  //   where: {
+  //     chatId,
+  //   },
+  //   include: {
+  //     seenBy: true,
+  //     sender: true,
+  //     parentMessage: true,
+  //   },
+  //   orderBy: {
+  //     createdAt: 'desc',
+  //   },
+  //   take: count,
+  //   skip: (page - 1) * count,
+  // });
 
-  messages.reverse();
+  // messages.reverse();
 
-  res.status(StatusCodes.OK).json({
-    messages,
-    hashNext: totalCount >= page * count,
-  });
+  // res.status(StatusCodes.OK).json({
+  //   messages,
+  //   hashNext: totalCount >= page * count,
+  // });
 };
 
 export const postChat = async (req, res, next) => {
-  const data = req.body;
+//   const data = req.body;
 
-  const chat = await prisma.chat.create({
-    data,
-  });
+//   const chat = await prisma.chat.create({
+//     data,
+//   });
 
-  res.status(StatusCodes.CREATED).json({
-    message: 'chated created',
-    chat,
-  });
-};
+//   res.status(StatusCodes.CREATED).json({
+//     message: 'chated created',
+//     chat,
+//   });
+// };
 
 export const patchChat = async (req, res, next) => {
   const chatId = toNumber(req.params.id);
 
   await getChatByIdOrThrow(chatId);
 
-  const data = req.body;
+  // const data = req.body;
 
-  const updatedChat = await prisma.chat.update({
-    where: {
-      id: chatId,
-    },
-    data,
-  });
+  // const updatedChat = await prisma.chat.update({
+  //   where: {
+  //     id: chatId,
+  //   },
+  //   data,
+  // });
 
-  res.status(StatusCodes.OK).json({
-    message: 'chat updated',
-    chat: updatedChat,
-  });
+  // res.status(StatusCodes.OK).json({
+  //   message: 'chat updated',
+  //   chat: updatedChat,
+  // });
 };
 
 export const deleteChat = async (req, res, next) => {
   const chatId = toNumber(req.params.id);
 
-  await getChatByIdOrThrow(chatId);
+  // await getChatByIdOrThrow(chatId);
 
-  await prisma.chat.delete({
-    where: {
-      id: chatId,
-    },
-  });
+  // await prisma.chat.delete({
+  //   where: {
+  //     id: chatId,
+  //   },
+  // });
 
-  res.status(StatusCodes.OK).json({
-    message: 'chat deleted',
-  });
+  // res.status(StatusCodes.OK).json({
+  //   message: 'chat deleted',
+  // });
 };
 
 export const addUsersToChat = async (req, res, next) => {
   const users = req.body.users, // list of ids [1, 2, 3]
     chatId = req.body.chatId;
 
-  await getChatByIdOrThrow(chatId);
+  // await getChatByIdOrThrow(chatId);
 
-  const updatedChat = await prisma.chat.update({
-    where: {
-      id: chatId,
-    },
-    data: {
-      users: {
-        connect: users.map((id) => ({ id })),
-      },
-    },
-    include: {
-      users: true,
-    },
-  });
+  // const updatedChat = await prisma.chat.update({
+  //   where: {
+  //     id: chatId,
+  //   },
+  //   data: {
+  //     users: {
+  //       connect: users.map((id) => ({ id })),
+  //     },
+  //   },
+  //   include: {
+  //     users: true,
+  //   },
+  // });
 
-  res.status(StatusCodes.OK).json({
-    message: 'users added successfully',
-    chatId: updatedChat,
-  });
+  // res.status(StatusCodes.OK).json({
+  //   message: 'users added successfully',
+  //   chatId: updatedChat,
+  // });
 };
 
 export const deleteUsersFromChat = async (req, res, next) => {
