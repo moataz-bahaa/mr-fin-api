@@ -142,7 +142,12 @@ export const getEmployees = async (req, res, next) => {
   }
 
   const data = await getPagination('employee', page, limit, filter, {
-    include: { team: true, leadingTeam: true, role: true },
+    include: {
+      team: true,
+      leadingTeam: true,
+      role: true,
+      account: { select: accountDataToSelect },
+    },
   });
 
   data.employees = data.employees.map(formateEmployee);
@@ -190,10 +195,6 @@ export const postEmployee = async (req, res, next) => {
     roleId,
     ...data
   } = validateJoi(EmployeeSchema, req.body);
-
-  console.log(req.body);
-  console.log(req.files?.workingPapers);
-  console.log(req.files?.profileImage);
 
   const isUserNameExists = await prisma.acccount.findUnique({
     where: {
