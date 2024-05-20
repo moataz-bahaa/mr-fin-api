@@ -6,6 +6,7 @@ import { BadRequestError } from '../../utils/errors.js';
 import { validateJoi } from '../../utils/helpers.js';
 import { toNumber } from '../../utils/index.js';
 import { MESSAGES } from '../../utils/messages.js';
+import { formateEmployee } from '../employee/employee.service.js';
 
 const teamDataToInclude = {
   branch: true,
@@ -53,7 +54,10 @@ export const getTeams = async (req, res, next) => {
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
-    teams,
+    teams: teams.map((team) => ({
+      ...team,
+      employees: team.employees.map(formateEmployee),
+    })),
   });
 };
 
@@ -67,7 +71,10 @@ export const getTeamById = async (req, res, next) => {
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
-    team,
+    team: {
+      ...team,
+      employees: team.employees.map(formateEmployee),
+    },
   });
 };
 
@@ -93,7 +100,14 @@ export const postTeam = async (req, res, next) => {
       );
     }
 
-    // TODO update employee role
+    await prisma.employee.update({
+      where: {
+        id: data.teamLeaderId,
+      },
+      data: {
+        roleId: 2
+      }
+    })
   }
 
   const team = await prisma.team.create({
@@ -103,7 +117,10 @@ export const postTeam = async (req, res, next) => {
 
   res.status(StatusCodes.CREATED).json({
     message: 'teaam created',
-    team,
+    team: {
+      ...team,
+      employees: team.employees.map(formateEmployee),
+    },
   });
 };
 
@@ -130,7 +147,7 @@ export const patchTeam = async (req, res, next) => {
         teamId: null,
         leadingTeam: {
           disconnect: true,
-        }
+        },
       },
     });
   } else if (data.teamLeaderId === null && team.teamLeaderId) {
@@ -156,7 +173,10 @@ export const patchTeam = async (req, res, next) => {
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
     message: MESSAGES.UPDATED,
-    team: updatedTeam,
+    team: {
+      ...updatedTeam,
+      employees: updatedTeam.employees.map(formateEmployee),
+    },
   });
 };
 
@@ -201,7 +221,10 @@ export const postRemoveEmployeesFromTeam = async (req, res, next) => {
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
-    team: updatedTeam,
+    team: {
+      ...updatedTeam,
+      employees: updatedTeam.employees.map(formateEmployee),
+    },
   });
 };
 
@@ -225,6 +248,9 @@ export const postAddEmployeesToTeam = async (req, res, next) => {
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
-    team: updatedTeam,
+    team: {
+      ...updatedTeam,
+      employees: updatedTeam.employees.map(formateEmployee),
+    },
   });
 };

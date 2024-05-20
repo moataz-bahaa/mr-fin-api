@@ -274,7 +274,7 @@ export const postEmployee = async (req, res, next) => {
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
-    employee,
+    employee: formateEmployee(employee),
   });
 };
 
@@ -395,7 +395,7 @@ export const patchEmployee = async (req, res, next) => {
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
     message: MESSAGES.UPDATED,
-    employee,
+    employee: formateEmployee(employee),
   });
 };
 

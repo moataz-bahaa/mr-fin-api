@@ -1,4 +1,5 @@
 import prisma from '../../prisma/client.js';
+import { formateEmployee } from '../employee/employee.service.js';
 
 export const getUserById = (accountId) =>
   prisma.acccount.findUniqueOrThrow({ where: { id: accountId } });
@@ -102,7 +103,7 @@ export const AuthService = {
         lastLoginAt: account.lastLoginAt,
         logoutAt: account.logoutAt,
       },
-      userData: account.admin ?? account.employee ?? account.client,
+      userData: account.admin ?? formateEmployee(account.employee) ?? account.client,
       branches,
     };
   },
