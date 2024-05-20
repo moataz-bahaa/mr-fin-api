@@ -191,6 +191,10 @@ export const postEmployee = async (req, res, next) => {
     ...data
   } = validateJoi(EmployeeSchema, req.body);
 
+  console.log(req.body);
+  console.log(req.files?.workingPapers);
+  console.log(req.files?.profileImage);
+
   const isUserNameExists = await prisma.acccount.findUnique({
     where: {
       email,
