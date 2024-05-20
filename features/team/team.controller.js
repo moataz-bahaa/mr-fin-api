@@ -140,6 +140,7 @@ export const patchTeam = async (req, res, next) => {
       },
       data: {
         roleId: 3,
+        teamId: team.id,
       },
     });
   }
