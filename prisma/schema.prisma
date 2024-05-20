@@ -212,15 +212,15 @@ model Client {
   bankCustomerNumber String?
   bankCode           String?
 
-  taxNumber             String?
-  elsterTaxNumber       String?
-  deliveryAuthority     String?
-  validFrom             DateTime?
-  validUntil            DateTime?
-  taxNumberComment      String?
-  officialNumberName    String?
-  taxOfficeDesignation  String?
-  taxOfficeComment      String?
+  taxNumber            String?
+  elsterTaxNumber      String?
+  deliveryAuthority    String?
+  validFrom            DateTime?
+  validUntil           DateTime?
+  taxNumberComment     String?
+  officialNumberName   String?
+  taxOfficeDesignation String?
+  taxOfficeComment     String?
 
   branchId Int
   teamId   Int?

@@ -28,6 +28,7 @@ export const AccountSchema = Joi.object({
 export const EmployeeSchema = Joi.object({
   account: AccountSchema.required(),
   personalNumber: Joi.string(),
+  salutation: Joi.string(),
   title: Joi.string(),
   firstName: Joi.string(),
   lastName: Joi.string(),

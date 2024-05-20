@@ -145,8 +145,8 @@ export const getEmployees = async (req, res, next) => {
     include: { team: true, leadingTeam: true, role: true },
   });
 
-  data.employees = data.employees.map(formateEmployee)
-  
+  data.employees = data.employees.map(formateEmployee);
+
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
     ...data,
@@ -156,23 +156,25 @@ export const getEmployees = async (req, res, next) => {
 export const getEmployeeById = async (req, res, next) => {
   const id = toNumber(req.params.id);
 
-  const employee = await prisma.employee.findUniqueOrThrow({
-    where: {
-      id,
-    },
-    include: {
-      account: {
-        select: accountDataToSelect,
+  const employee = await prisma.employee
+    .findUniqueOrThrow({
+      where: {
+        id,
       },
-      branch: true,
-      role: true,
-      team: true,
-      leadingTeam: true,
-      workingPapers: {
-        select: fileDataToSelect,
+      include: {
+        account: {
+          select: accountDataToSelect,
+        },
+        branch: true,
+        role: true,
+        team: true,
+        leadingTeam: true,
+        workingPapers: {
+          select: fileDataToSelect,
+        },
       },
-    },
-  }).then((emp) => formateEmployee(emp))
+    })
+    .then((emp) => formateEmployee(emp));
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
