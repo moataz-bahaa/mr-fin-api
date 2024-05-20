@@ -111,26 +111,37 @@ export const patchTeam = async (req, res, next) => {
   const teamId = toNumber(req.params.id);
   const data = validateJoi(UpdateTeamSchema, req.body);
   // enuser that team exits
-  await prisma.team.findUniqueOrThrow({
+  const team = await prisma.team.findUniqueOrThrow({
     where: {
       id: teamId,
+    },
+    include: {
+      teamLeader: true,
     },
   });
 
   if (data.teamLeaderId) {
-    const isExists = await prisma.team.findUnique({
+    await prisma.employee.update({
       where: {
-        teamLeaderId: data.teamLeaderId,
+        id: data.teamLeaderId,
+      },
+      data: {
+        roleId: 2,
+        teamId: null,
+        leadingTeam: {
+          disconnect: true,
+        }
       },
     });
-
-    if (isExists) {
-      throw new BadRequestError(
-        `Employee with id ${data.teamLeaderId} is a team leader in another team`
-      );
-    }
-
-    // TODO update employee role
+  } else if (data.teamLeaderId === null && team.teamLeaderId) {
+    await prisma.employee.update({
+      where: {
+        id: team.teamLeaderId,
+      },
+      data: {
+        roleId: 3,
+      },
+    });
   }
 
   const updatedTeam = await prisma.team.update({

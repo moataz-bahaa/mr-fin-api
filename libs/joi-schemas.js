@@ -155,6 +155,6 @@ export const UpdateEmployeeSchema = EmployeeSchema.keys({
 
 export const UpdateTeamSchema = Joi.object({
   name: Joi.string(),
-  teamLeaderId: ForeignKeySchema,
+  teamLeaderId: ForeignKeySchema.allow(null),
   branchId: ForeignKeySchema,
 });

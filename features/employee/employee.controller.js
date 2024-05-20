@@ -19,6 +19,7 @@ import {
   validateJoi,
 } from '../../utils/helpers.js';
 import { MESSAGES } from '../../utils/messages.js';
+import { formateEmployee } from './employee.service.js';
 
 export const getEmployeeRoles = async (req, res, next) => {
   const roles = await prisma.employeeRole.findMany();
@@ -140,8 +141,12 @@ export const getEmployees = async (req, res, next) => {
     );
   }
 
-  const data = await getPagination('employee', page, limit, filter);
+  const data = await getPagination('employee', page, limit, filter, {
+    include: { team: true, leadingTeam: true, role: true },
+  });
 
+  data.employees = data.employees.map(formateEmployee)
+  
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
     ...data,
@@ -167,7 +172,7 @@ export const getEmployeeById = async (req, res, next) => {
         select: fileDataToSelect,
       },
     },
-  });
+  }).then((emp) => formateEmployee(emp))
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,

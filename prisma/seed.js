@@ -11,7 +11,7 @@ import prisma from './client.js';
           name: 'Admin Test',
           account: {
             create: {
-              userNameOrEmail: 'admin',
+              email: 'admin',
               hashedPassword: await hashPassword('328221'),
             },
           },
