@@ -159,3 +159,9 @@ export const UpdateTeamSchema = Joi.object({
   teamLeaderId: ForeignKeySchema.allow(null),
   branchId: ForeignKeySchema,
 });
+
+export const UpdateBranchSchema = Joi.object({
+  name: Joi.string(),
+  location: Joi.string(),
+  managerId: ForeignKeySchema,
+});

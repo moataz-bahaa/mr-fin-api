@@ -129,11 +129,11 @@ model Employee {
 
   workingPapers File[]
 
-  leadingTeam      Team?        @relation("team_leader")
-  role             EmployeeRole @relation(fields: [roleId], references: [id])
-  branch           Branch       @relation(fields: [branchId], references: [id])
-  mangerInBranches Branch[]     @relation("branch_manager")
-  team             Team?        @relation("team_members", fields: [teamId], references: [id])
+  leadingTeam   Team?        @relation("team_leader")
+  role          EmployeeRole @relation(fields: [roleId], references: [id])
+  branch        Branch       @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  managedBranch Branch?      @relation("branch_manager")
+  team          Team?        @relation("team_members", fields: [teamId], references: [id])
 
   // TODO review
   managedDepartments Department[]
