@@ -1,6 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
 import { STATUS, accountDataToSelect } from '../../libs/constants.js';
-import { TeamSchema, UpdateTeamSchema } from '../../libs/joi-schemas.js';
+import {
+  AssingClientToTeamSchema,
+  TeamSchema,
+  UpdateTeamSchema,
+} from '../../libs/joi-schemas.js';
 import prisma from '../../prisma/client.js';
 import { BadRequestError } from '../../utils/errors.js';
 import { validateJoi } from '../../utils/helpers.js';
@@ -105,9 +109,9 @@ export const postTeam = async (req, res, next) => {
         id: data.teamLeaderId,
       },
       data: {
-        roleId: 2
-      }
-    })
+        roleId: 2,
+      },
+    });
   }
 
   const team = await prisma.team.create({
@@ -252,5 +256,56 @@ export const postAddEmployeesToTeam = async (req, res, next) => {
       ...updatedTeam,
       employees: updatedTeam.employees.map(formateEmployee),
     },
+  });
+};
+
+export const postAssignClientToTeam = async (req, res, next) => {
+  const { clientId, teamId, services } = validateJoi(
+    AssingClientToTeamSchema,
+    req.body
+  );
+
+  const client = await prisma.client.findUniqueOrThrow({
+    where: {
+      id: clientId,
+    },
+  });
+
+  const team = await prisma.team.findFirstOrThrow({
+    where: {
+      id: teamId,
+    },
+  });
+
+  await prisma.clientService.deleteMany({
+    where: {
+      clientId: client.id,
+    }
+  })
+
+  const updatedClient = await prisma.client.update({
+    where: {
+      id: client.id,
+    },
+    data: {
+      teamId,
+      services: {
+        create: services.map((id) => ({ serviceId: id }))
+      }
+    },
+    include: {
+      services: {
+        select: {
+          id: true,
+          service: true,
+          isCompleted: true,
+        }
+      },
+    }
+  });
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
+    clientServices: updatedClient.services,
   });
 };

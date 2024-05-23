@@ -165,3 +165,9 @@ export const UpdateBranchSchema = Joi.object({
   location: Joi.string(),
   managerId: ForeignKeySchema,
 });
+
+export const AssingClientToTeamSchema = Joi.object({
+  clientId: ForeignKeySchema.required(),
+  teamId: ForeignKeySchema.required(),
+  services: Joi.array().items(Joi.number()).default([]),
+});
