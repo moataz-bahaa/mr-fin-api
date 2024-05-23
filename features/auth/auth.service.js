@@ -25,7 +25,7 @@ export const AuthService = {
         client: {
           include: {
             files: true,
-            services: true,
+            clientServices: true,
             team: true,
           }
         },

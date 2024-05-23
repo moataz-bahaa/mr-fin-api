@@ -6,7 +6,9 @@ import {
   getClientById,
   getClients,
   patchClient,
+  patchClientServices,
   postClient,
+  putClientServices,
 } from './client.controller.js';
 
 const router = Router();
@@ -32,6 +34,8 @@ router.post(
   postClient
 );
 
+router.patch('/services', patchClientServices);
+
 router.patch(
   '/:id',
   isAdmin,
@@ -48,6 +52,8 @@ router.patch(
   ]),
   patchClient
 );
+
+router.put('/:id/services', putClientServices);
 
 router.delete('/:id', isAuth, isAdmin, deleteClient);
 

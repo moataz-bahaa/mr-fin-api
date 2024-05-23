@@ -70,13 +70,27 @@ export const getTeamById = async (req, res, next) => {
 
   const team = await prisma.team.findUniqueOrThrow({
     where: { id },
-    include: teamDataToInclude,
+    include: {
+      ...teamDataToInclude,
+      clients: {
+        include: {
+          clientServices: {
+            select: {
+              id: true,
+              service: true,
+              isCompleted: true,
+            }
+          }
+        }
+      }
+    },
   });
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
     team: {
       ...team,
+      // @ts-ignore
       employees: team.employees.map(formateEmployee),
     },
   });
@@ -289,12 +303,12 @@ export const postAssignClientToTeam = async (req, res, next) => {
     },
     data: {
       teamId,
-      services: {
+      clientServices: {
         create: services.map((id) => ({ serviceId: id }))
       }
     },
     include: {
-      services: {
+      clientServices: {
         select: {
           id: true,
           service: true,
@@ -306,6 +320,6 @@ export const postAssignClientToTeam = async (req, res, next) => {
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
-    clientServices: updatedClient.services,
+    clientServices: updatedClient.clientServices,
   });
 };

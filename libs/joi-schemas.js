@@ -171,3 +171,12 @@ export const AssingClientToTeamSchema = Joi.object({
   teamId: ForeignKeySchema.required(),
   services: Joi.array().items(Joi.number()).default([]),
 });
+
+export const ClientServicesSchema = Joi.array().items(Joi.number()).default([]);
+
+export const PatchClientService = Joi.array().items(
+  Joi.object({
+    id: Joi.number().required(),
+    isCompleted: Joi.boolean().required(),
+  })
+);

@@ -5,7 +5,12 @@ import {
   accountDataToSelect,
   fileDataToSelect,
 } from '../../libs/constants.js';
-import { ClientSchema, UpdateClientSchema } from '../../libs/joi-schemas.js';
+import {
+  ClientSchema,
+  ClientServicesSchema,
+  PatchClientService,
+  UpdateClientSchema,
+} from '../../libs/joi-schemas.js';
 import prisma from '../../prisma/client.js';
 import { BadRequestError } from '../../utils/errors.js';
 import {
@@ -82,7 +87,13 @@ export const getClientById = async (req, res, next) => {
         select: accountDataToSelect,
       },
       branch: true,
-      services: true,
+      clientServices: {
+        select: {
+          id: true,
+          service: true,
+          isCompleted: true,
+        }
+      },
       team: true,
       files: {
         select: fileDataToSelect,
@@ -144,7 +155,7 @@ export const postClient = async (req, res, next) => {
         create: {
           email,
           hashedPassword,
-          profileImageUrl
+          profileImageUrl,
         },
       },
       branch: {
@@ -165,7 +176,7 @@ export const postClient = async (req, res, next) => {
       },
       branch: true,
       team: true,
-      services: true,
+      clientServices: true,
       files: {
         select: fileDataToSelect,
       },
@@ -279,7 +290,7 @@ export const patchClient = async (req, res, next) => {
       },
       branch: true,
       team: true,
-      services: true,
+      clientServices: true,
       files: {
         select: fileDataToSelect,
       },
@@ -315,4 +326,55 @@ export const deleteClient = async (req, res, next) => {
 
 export const postAssignToTeam = async (req, res, next) => {
   // includes adding work/serversice/requiremenst (8 services)
+};
+
+export const putClientServices = async (req, res, next) => {
+  const services = validateJoi(ClientServicesSchema, req.body);
+
+  const id = toNumber(req.params.id);
+  const client = await prisma.client.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  await prisma.clientService.deleteMany({
+    where: {
+      clientId: id,
+    },
+  });
+
+  await prisma.clientService.createMany({
+    data: services.map((serviceId) => ({ serviceId, clientId: client.id })),
+  });
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
+  });
+};
+
+export const patchClientServices = async (req, res, next) => {
+  const clientServices = validateJoi(PatchClientService, req.body);
+
+  for (const clientService of clientServices) {
+    await prisma.clientService.findUniqueOrThrow({
+      where: {
+        id: clientService.id,
+      },
+    });
+
+    await prisma.clientService.update({
+      where: {
+        id: clientService.id,
+      },
+      data: {
+        isCompleted: clientService.isCompleted,
+      },
+    });
+  }
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
+    message: MESSAGES.UPDATED,
+  });
 };

@@ -231,7 +231,7 @@ model Client {
 
   team Team? @relation(fields: [teamId], references: [id])
 
-  services ClientService[]
+  clientServices ClientService[]
 
   files File[]
 
