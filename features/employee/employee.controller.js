@@ -78,7 +78,7 @@ export const getEmployees = async (req, res, next) => {
     orFilter.push({
       // @ts-ignore
       account: {
-        userNameOrEmail: {
+        email: {
           contains: search,
         },
       },

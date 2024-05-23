@@ -34,13 +34,12 @@ export const getClients = async (req, res, next) => {
 
   if (search) {
     filter.OR = [
-      'anrede',
+      'salutation',
       'title',
       'name',
-      'vomame',
-      'postleitzahlOrt',
-      'landLaenderkuerzel',
-      'birthName',
+      'username',
+      'companyName',
+      'abbreviation',
     ].map((key) => ({
       [key]: {
         contains: search,

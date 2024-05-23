@@ -97,7 +97,7 @@ export const AuthService = {
       role,
       account: {
         id: account.id,
-        userNameOrEmail: account.email,
+        email: account.email,
         status: account.status,
         isOnline: account.isOnline,
         lastLoginAt: account.lastLoginAt,
