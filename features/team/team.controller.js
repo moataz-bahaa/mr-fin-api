@@ -74,6 +74,9 @@ export const getTeamById = async (req, res, next) => {
       ...teamDataToInclude,
       clients: {
         include: {
+          account: {
+            select: accountDataToSelect,
+          },
           clientServices: {
             select: {
               id: true,

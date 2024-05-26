@@ -24,7 +24,7 @@ import { MESSAGES } from '../../utils/messages.js';
 
 export const getClients = async (req, res, next) => {
   const branchId = toNumber(req.params.branchId);
-  const { search, status } = req.query;
+  const { search, status, teamId } = req.query;
   const { page, limit } = getPageAndLimitFromQurey(req.query);
 
   const filter = {
@@ -35,6 +35,10 @@ export const getClients = async (req, res, next) => {
     filter.account = {
       status,
     };
+  }
+
+  if (teamId) {
+    filter.teamId = toNumber(teamId);
   }
 
   if (search) {
