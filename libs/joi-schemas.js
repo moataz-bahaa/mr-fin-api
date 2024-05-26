@@ -180,3 +180,13 @@ export const PatchClientService = Joi.array().items(
     isCompleted: Joi.boolean().required(),
   })
 );
+
+export const DailyReportSchema = Joi.object({
+  sign: Joi.string().required(),
+  date: Joi.date().required(),
+  start: Joi.string().required(),
+  pause: Joi.string().required(),
+  end: Joi.string().required(),
+  remarks: Joi.string().allow(null).optional(),
+  clientId: ForeignKeySchema.optional(),
+});

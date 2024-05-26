@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Service {
-  id          Int    @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
   description String?
 
@@ -129,11 +129,12 @@ model Employee {
 
   workingPapers File[]
 
-  leadingTeam   Team?        @relation("team_leader")
-  role          EmployeeRole @relation(fields: [roleId], references: [id])
-  branch        Branch       @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  managedBranch Branch?      @relation("branch_manager")
-  team          Team?        @relation("team_members", fields: [teamId], references: [id])
+  leadingTeam   Team?                 @relation("team_leader")
+  role          EmployeeRole          @relation(fields: [roleId], references: [id])
+  branch        Branch                @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  managedBranch Branch?               @relation("branch_manager")
+  team          Team?                 @relation("team_members", fields: [teamId], references: [id])
+  dailyReports  EmployeeDailyReport[]
 
   // TODO review
   managedDepartments Department[]
@@ -242,7 +243,7 @@ model Client {
 model ClientService {
   id Int @id @default(autoincrement())
 
-  service  Service @relation(fields: [serviceId], references: [id])
+  service   Service @relation(fields: [serviceId], references: [id])
   serviceId Int
 
   client   Client @relation(fields: [clientId], references: [id])
@@ -255,17 +256,23 @@ model ClientService {
 }
 
 model EmployeeDailyReport {
-  id        Int      @id @default(autoincrement())
-  sign      String
-  month     String
-  beginning DateTime
-  break     DateTime
-  end       DateTime
-  remarks   String?
-  files     File[]
+  id      Int      @id @default(autoincrement())
+  sign    String
+  date    DateTime
+  start   String
+  pause   String
+  end     String
+  remarks String?
 
   client   Client? @relation(fields: [clientId], references: [id])
   clientId Int?
+
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId Int
+
+  createdAt DateTime @default(now())
+
+  @@map("employees_daily_reports")
 }
 
 model Email {
@@ -353,9 +360,6 @@ model File {
 
   email   Email? @relation(fields: [emailId], references: [id])
   emailId Int?
-
-  employeeDailyReport   EmployeeDailyReport? @relation(fields: [employeeDailyReportId], references: [id])
-  employeeDailyReportId Int?
 
   client   Client? @relation(fields: [clientId], references: [id])
   clientId Int?

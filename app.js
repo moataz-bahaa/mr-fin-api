@@ -16,6 +16,7 @@ import employeeRoutes from './features/employee/employee.routes.js';
 import teamRoutes from './features/team/team.routes.js';
 import { APIKeyGuard } from './middlewares/api-key.middleware.js';
 import serviceRoutes from './features/service/service.routes.js';
+import employeeDailyReportRoutes from './features/employee-daily-report/routes.js';
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/services', serviceRoutes);
+app.use('/api/daily-reports', employeeDailyReportRoutes);
 
 // error handler
 app.use(errorHandler);
