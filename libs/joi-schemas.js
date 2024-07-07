@@ -178,6 +178,7 @@ export const PatchClientService = Joi.array().items(
   Joi.object({
     id: Joi.number().required(),
     isCompleted: Joi.boolean().required(),
+    employees: Joi.array().items(Joi.number()).optional(),
   })
 );
 
@@ -189,4 +190,13 @@ export const DailyReportSchema = Joi.object({
   end: Joi.string().required(),
   remarks: Joi.string().allow(null).optional(),
   clientId: ForeignKeySchema.optional(),
+  clientServiceId: ForeignKeySchema.optional(),
+});
+
+export const PostEmailSchema = Joi.object({
+  subject: Joi.string(),
+  content: Joi.string(),
+  serviceId: ForeignKeySchema.optional(),
+  parentEmailId: ForeignKeySchema.optional(),
+  receivers: Joi.array().items(ForeignKeySchema).default([])
 });

@@ -1,117 +1,228 @@
-import prisma from '../../prisma/client.js';
-import {
-  BadRequestError,
-  ForbidenError,
-  NotFoundError,
-  UnAuthenticatedError,
-} from '../../utils/errors.js';
-import { sendNotification } from '../../libs/socket.js';
 import { StatusCodes } from 'http-status-codes';
-import { sendEmail } from '../../utils/email.js';
-import { calcNumberOfPages, toNumber } from '../../utils/index.js';
+import { STATUS } from '../../libs/constants.js';
+import { PostEmailSchema } from '../../libs/joi-schemas.js';
+import { sendSocketEmail } from '../../libs/socket.js';
+import prisma from '../../prisma/client.js';
+import { BadRequestError } from '../../utils/errors.js';
+import {
+  getPageAndLimitFromQurey,
+  getPagination,
+  getUrl,
+  validateJoi,
+} from '../../utils/helpers.js';
+import { toNumber } from '../../utils/index.js';
 
 export const postEmail = async (req, res, next) => {
-  const { subject, content, receivers, categoryId, parentEmailId } = req.body;
-
-  if (!subject || !receivers || !categoryId) {
-    throw new BadRequestError('please provide all data');
-  }
+  const { subject, content, receivers, serviceId, parentEmailId } = validateJoi(
+    PostEmailSchema,
+    req.body
+  );
 
   const data = {
-    senderId: req.user.id,
+    senderId: req.account.id,
     subject,
     content,
     parentEmailId,
-    categoryId,
+    serviceId,
   };
 
   if (req.files) {
-    data.files = {
+    data.attachments = {
       create: req.files.map((file) => ({
-        url: file.path,
-        userId: req.user.id,
-        categoryId,
+        url: getUrl(req, file.path),
+        userId: req.account.id,
+        serviceId,
       })),
     };
   }
+  data.receivers = {
+    connect: receivers.map((id) => ({ id })),
+  };
 
   const email = await prisma.email.create({
     data,
     include: {
-      category: true,
-      files: true,
+      service: true,
+      attachments: true,
       parentEmail: true,
       receivers: true,
       sender: true,
+      childEmails: true,
     },
   });
 
   res.status(StatusCodes.OK).json({
-    message: 'email sended successfully',
+    message: 'Email sent successfully',
     email,
   });
 
-  // notification
-  receivers.map((recieverId) => {
-    sendNotification(recieverId, 'new email receive');
-  });
-
   // send email remeinder
-  sendEmail({
-    from: '',
-    to: req.user.email,
-    subject: 'Mr-fin-consulting',
-    text: `check your email at https://example.com`,
-  });
+
+  sendSocketEmail(email);
+  // TODO enable or not ?
+  // email.receivers.forEach((user) => {
+  //   sendEmail({
+  //     from: '',
+  //     to: req.user.email,
+  //     subject: 'Mr-fin-consulting',
+  //     text: `check your email at ${process.env.NEXT_APP_BASE_URL}`,
+  //   });
+  // });
 };
 
 export const getEmails = async (req, res, next) => {
-  const { sended, received } = req.query;
+  const { type, branchId, search, showAll = 'true' } = req.query;
 
-  const page = toNumber(req.query?.page ?? 1),
-    count = toNumber(req.query?.count ?? 10);
+  const { page, limit: count } = getPageAndLimitFromQurey(req.query);
 
   const filter = {};
 
-  if (sended === 'true') {
-    filter.senderId = req.user.id;
-  } else if (received === 'true') {
-    filter.receivers = {
-      some: {
-        id: req.user.id,
-      },
-    };
-  } else {
-    filter.OR = [
+  if (
+    (req.account.isAdmin || req.account.isBranchManager) &&
+    showAll === 'true'
+  ) {
+    if (!branchId) {
+      throw new BadRequestError(
+        `for admins and branch managers branchId must be sent`
+      );
+    }
+    filter.AND = [
       {
-        receivers: {
-          some: {
-            id: req.user.id,
+        OR: [
+          {
+            receivers: {
+              some: {
+                OR: [
+                  {
+                    client: {
+                      branchId: toNumber(branchId),
+                    },
+                  },
+                  {
+                    employee: {
+                      branchId: toNumber(branchId),
+                    },
+                  },
+                ],
+              },
+            },
           },
-        },
-      },
-      {
-        senderId: req.user.id,
+          {
+            sender: {
+              OR: [
+                {
+                  client: {
+                    branchId: toNumber(branchId),
+                  },
+                },
+                {
+                  employee: {
+                    branchId: toNumber(branchId),
+                  },
+                },
+              ],
+            },
+          },
+        ],
       },
     ];
   }
 
-  const totalCount = await prisma.email.count({
-    where: filter,
-  });
+  if (
+    ((req.account.isAdmin || req.account.isBranchManager) &&
+      showAll === 'false') ||
+    (!req.account.isAdmin && !req.account.isBranchManager)
+  ) {
+    if (type === 'sent') {
+      filter.AND = [
+        {
+          senderId: req.account.id,
+        },
+      ];
+    } else if (type === 'received') {
+      filter.AND = [
+        {
+          receivers: {
+            some: {
+              id: req.account.id,
+            },
+          },
+        },
+      ];
+    } else {
+      filter.AND = [
+        {
+          OR: [
+            {
+              receivers: {
+                some: {
+                  id: req.account.id,
+                },
+              },
+            },
+            {
+              senderId: req.account.id,
+            },
+          ],
+        },
+      ];
+    }
+  }
 
-  const emails = await prisma.email.findMany({
-    where: filter,
-    orderBy: {
-      createdAt: 'desc',
+  if (search) {
+    filter.AND.push({
+      OR: [
+        {
+          // @ts-ignore
+          subject: {
+            contains: search,
+          },
+        },
+        {
+          // @ts-ignore
+          content: {
+            contains: search,
+          },
+        },
+      ],
+    });
+  }
+
+  const data = await getPagination('email', page, count, filter, {
+    select: {
+      id: true,
+      sender: true,
+      subject: true,
+      createdAt: true,
+      service: true,
     },
-    take: count,
-    skip: (page - 1) * count,
   });
 
   res.status(StatusCodes.OK).json({
-    emails,
-    totalCount,
-    numberOfPages: calcNumberOfPages(totalCount, count),
+    status: STATUS.SUCCESS,
+    ...data,
+  });
+};
+
+export const getEmailById = async (req, res, next) => {
+  const id = toNumber(req.params.id);
+
+  const email = await prisma.email.findUniqueOrThrow({
+    where: {
+      id,
+    },
+    include: {
+      attachments: true,
+      childEmails: true,
+      parentEmail: true,
+      receivers: true,
+      sender: true,
+      service: true,
+    },
+  });
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
+    email,
   });
 };

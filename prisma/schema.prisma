@@ -8,11 +8,15 @@ datasource db {
 }
 
 model Service {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String?
+  id            Int     @id @default(autoincrement())
+  name          String
+  description   String?
+  repeatdeEvery Int     @default(0)
 
-  clients ClientService[]
+  clientServices ClientService[]
+  clients        Client[]
+  Email          Email[]
+  File           File[]
 
   @@map("services")
 }
@@ -136,9 +140,7 @@ model Employee {
   team          Team?                 @relation("team_members", fields: [teamId], references: [id])
   dailyReports  EmployeeDailyReport[]
 
-  // TODO review
-  managedDepartments Department[]
-  departments        Department[] @relation("department_employees")
+  clientServices ClientService[]
 
   @@id([id])
 }
@@ -234,14 +236,17 @@ model Client {
 
   clientServices ClientService[]
 
-  files File[]
+  files    File[]
+  invoices Invoice[]
+  services Service[]
 
   @@id([id])
   @@map("clients")
 }
 
 model ClientService {
-  id Int @id @default(autoincrement())
+  id     Int  @id @default(autoincrement())
+  months Json @default("[]")
 
   service   Service @relation(fields: [serviceId], references: [id])
   serviceId Int
@@ -251,7 +256,13 @@ model ClientService {
 
   isCompleted Boolean @default(false)
 
-  @@unique([serviceId, clientId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employees Employee[]
+
+  employeeDailyReports EmployeeDailyReport[]
+
   @@map("clients_services")
 }
 
@@ -264,8 +275,11 @@ model EmployeeDailyReport {
   end     String
   remarks String?
 
-  client   Client? @relation(fields: [clientId], references: [id])
-  clientId Int?
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId Int
+
+  clientService   ClientService? @relation(fields: [clientServiceId], references: [id])
+  clientServiceId Int?
 
   employee   Employee @relation(fields: [employeeId], references: [id])
   employeeId Int
@@ -278,7 +292,7 @@ model EmployeeDailyReport {
 model Email {
   id        Int      @id @default(autoincrement())
   subject   String
-  content   String?
+  content   String? @db.Text
   createdAt DateTime @default(now())
 
   sender   Acccount @relation("user_sended_emails", fields: [senderId], references: [id])
@@ -286,42 +300,17 @@ model Email {
 
   receivers Acccount[] @relation("user_received_emails")
 
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
+  service   Service? @relation(fields: [serviceId], references: [id])
+  serviceId Int?
 
-  files File[]
+  attachments File[]
 
   parentEmail   Email? @relation("reply_to_email", fields: [parentEmailId], references: [id])
-  parentEmailId Int?   @unique
+  parentEmailId Int?
 
-  childEmail Email? @relation("reply_to_email")
+  childEmails Email[] @relation("reply_to_email")
 
   @@map("emails")
-}
-
-model WriteableDocument {
-  id        Int      @id @default(autoincrement())
-  name      String
-  text      String   @db.Text
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  department   Department? @relation(fields: [departmentId], references: [id])
-  departmentId Int?        @unique
-}
-
-model Category {
-  id               Int     @id @default(autoincrement())
-  name             String
-  clientVisibility Boolean @default(false)
-
-  files File[]
-
-  folders Folder[]
-
-  emails Email[]
-
-  @@map("categories")
 }
 
 model Folder {
@@ -334,9 +323,6 @@ model Folder {
   parentFolderId Int?
 
   folders Folder[] @relation("child_folders")
-
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
 
   files File[]
 
@@ -352,11 +338,11 @@ model File {
   user   Acccount? @relation(fields: [userId], references: [id])
   userId Int?
 
+  service   Service? @relation(fields: [serviceId], references: [id])
+  serviceId Int?
+
   folder   Folder? @relation(fields: [folderId], references: [id])
   folderId Int?
-
-  category   Category? @relation(fields: [categoryId], references: [id])
-  categoryId Int?
 
   email   Email? @relation(fields: [emailId], references: [id])
   emailId Int?
@@ -394,33 +380,38 @@ model ContactUsMessages {
   @@map("contact_us_messages")
 }
 
-model Department {
-  id   Int    @id @default(autoincrement())
-  name String
-
-  employees Employee[] @relation("department_employees")
-
-  manager   Employee? @relation(fields: [managerId], references: [id])
-  managerId Int?
-
-  writeableDocument WriteableDocument?
-
-  @@map("departments")
-}
-
-model Task {
-  id Int @id @default(autoincrement())
-  // TODO i don't know how to handle this
-}
-
-model CallsHistory {
-  id Int @id @default(autoincrement())
-  // TODO
-}
-
 model Invoice {
-  id Int @id @default(autoincrement())
-  // TODO
+  id              Int    @id @default(autoincrement())
+  calculationType String
+
+  totalAmount      Float // Summe (Total)
+  vatAmount        Float // Umsatzsteuer (VAT Amount)
+  totalGrossAmount Float // Summe (brutto) (Total including VAT)
+  remainingAmount  Float // Verbleibender Rechnungsbetrag (Remaining Invoice Amount)
+  remainingVat     Float // Verbleibende Umsatzsteuer (Remaining VAT)
+  paymentDueDate   DateTime // Zahlung erbeten bis spätestens (Payment due by)
+
+  createdAt DateTime      @default(now())
+  items     InvoiceItem[]
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId Int
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id              Int    @id @default(autoincrement())
+  issue           String // Angelegenheit (Issue/Subject)
+  periodTable     String // Zeitraum Tabelle (Period Table)
+  valueTimeNumber String // Wert/Zeit/Anzahl (Value/Time/Quantity)
+  rate            Float // Satz (Rate)
+  amount          Float // Betrag (Amount)
+
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+  invoiceId Int
+
+  @@map("invoice_items")
 }
 
 // enums

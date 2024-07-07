@@ -96,7 +96,8 @@ export const getClientById = async (req, res, next) => {
           id: true,
           service: true,
           isCompleted: true,
-        }
+          months: true,
+        },
       },
       team: true,
       files: {
@@ -328,28 +329,68 @@ export const deleteClient = async (req, res, next) => {
   });
 };
 
-export const postAssignToTeam = async (req, res, next) => {
-  // includes adding work/serversice/requiremenst (8 services)
-};
-
 export const putClientServices = async (req, res, next) => {
-  const services = validateJoi(ClientServicesSchema, req.body);
+  const servicesIds = validateJoi(ClientServicesSchema, req.body);
 
   const id = toNumber(req.params.id);
   const client = await prisma.client.findUniqueOrThrow({
     where: {
       id,
     },
-  });
-
-  await prisma.clientService.deleteMany({
-    where: {
-      clientId: id,
+    include: {
+      services: true,
     },
   });
 
-  await prisma.clientService.createMany({
-    data: services.map((serviceId) => ({ serviceId, clientId: client.id })),
+  for (const serviceId of servicesIds) {
+    const isExists = await client.services.find((s) => s.id === serviceId);
+
+    if (isExists) {
+      // if it is exists cron job will handle re adding client-services
+      continue;
+    }
+
+    await prisma.client.update({
+      where: {
+        id: client.id,
+      },
+      data: {
+        services: {
+          connect: {
+            id: serviceId,
+          },
+        },
+      },
+    });
+
+    // add task
+    await prisma.clientService.create({
+      data: {
+        clientId: client.id,
+        serviceId,
+        // TODO put the real months depending on service.repeatedAt
+        months: ['Jan', 'Feb', 'March'],
+      },
+    });
+  }
+
+  // handle deletion
+  const servicesToDelete = [];
+  for (const service of client.services) {
+    if (!servicesIds.includes(service.id)) {
+      servicesToDelete.push({ id: service.id });
+    }
+  }
+
+  await prisma.client.update({
+    where: {
+      id: client.id,
+    },
+    data: {
+      services: {
+        disconnect: servicesToDelete,
+      },
+    },
   });
 
   res.status(StatusCodes.OK).json({
@@ -367,12 +408,21 @@ export const patchClientServices = async (req, res, next) => {
       },
     });
 
+    const data = {};
+
+    if (clientService.employees) {
+      data.employees = {
+        set: clientService.employees.map((id) => ({ id })),
+      };
+    }
+
     await prisma.clientService.update({
       where: {
         id: clientService.id,
       },
       data: {
         isCompleted: clientService.isCompleted,
+        ...data,
       },
     });
   }

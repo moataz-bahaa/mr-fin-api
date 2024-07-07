@@ -9,6 +9,5 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendEmail = (options) => {
-  
   return transporter.sendMail(options);
 };
