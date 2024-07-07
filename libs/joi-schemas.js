@@ -178,6 +178,7 @@ export const PatchClientService = Joi.array().items(
   Joi.object({
     id: Joi.number().required(),
     isCompleted: Joi.boolean().required(),
+    employees: Joi.array().items(Joi.number()).optional(),
   })
 );
 
