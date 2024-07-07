@@ -192,3 +192,11 @@ export const DailyReportSchema = Joi.object({
   clientId: ForeignKeySchema.optional(),
   clientServiceId: ForeignKeySchema.optional(),
 });
+
+export const PostEmailSchema = Joi.object({
+  subject: Joi.string(),
+  content: Joi.string(),
+  serviceId: ForeignKeySchema.optional(),
+  parentEmailId: ForeignKeySchema.optional(),
+  receivers: Joi.array().items(ForeignKeySchema).default([])
+});

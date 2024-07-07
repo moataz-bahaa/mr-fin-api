@@ -14,9 +14,9 @@ model Service {
   repeatdeEvery Int     @default(0)
 
   clientServices ClientService[]
-  clients Client[]
-  Email   Email[]
-  File    File[]
+  clients        Client[]
+  Email          Email[]
+  File           File[]
 
   @@map("services")
 }
@@ -259,7 +259,7 @@ model ClientService {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  employees   Employee[]
+  employees Employee[]
 
   employeeDailyReports EmployeeDailyReport[]
 
@@ -292,7 +292,7 @@ model EmployeeDailyReport {
 model Email {
   id        Int      @id @default(autoincrement())
   subject   String
-  content   String?
+  content   String? @db.Text
   createdAt DateTime @default(now())
 
   sender   Acccount @relation("user_sended_emails", fields: [senderId], references: [id])
@@ -300,15 +300,15 @@ model Email {
 
   receivers Acccount[] @relation("user_received_emails")
 
-  service   Service @relation(fields: [serviceId], references: [id])
-  serviceId Int
+  service   Service? @relation(fields: [serviceId], references: [id])
+  serviceId Int?
 
-  files File[]
+  attachments File[]
 
   parentEmail   Email? @relation("reply_to_email", fields: [parentEmailId], references: [id])
-  parentEmailId Int?   @unique
+  parentEmailId Int?
 
-  childEmail Email? @relation("reply_to_email")
+  childEmails Email[] @relation("reply_to_email")
 
   @@map("emails")
 }
@@ -381,12 +381,37 @@ model ContactUsMessages {
 }
 
 model Invoice {
-  id    Int   @id @default(autoincrement())
-  price Float
-  taxes Float
+  id              Int    @id @default(autoincrement())
+  calculationType String
+
+  totalAmount      Float // Summe (Total)
+  vatAmount        Float // Umsatzsteuer (VAT Amount)
+  totalGrossAmount Float // Summe (brutto) (Total including VAT)
+  remainingAmount  Float // Verbleibender Rechnungsbetrag (Remaining Invoice Amount)
+  remainingVat     Float // Verbleibende Umsatzsteuer (Remaining VAT)
+  paymentDueDate   DateTime // Zahlung erbeten bis spätestens (Payment due by)
+
+  createdAt DateTime      @default(now())
+  items     InvoiceItem[]
 
   client   Client @relation(fields: [clientId], references: [id])
   clientId Int
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id              Int    @id @default(autoincrement())
+  issue           String // Angelegenheit (Issue/Subject)
+  periodTable     String // Zeitraum Tabelle (Period Table)
+  valueTimeNumber String // Wert/Zeit/Anzahl (Value/Time/Quantity)
+  rate            Float // Satz (Rate)
+  amount          Float // Betrag (Amount)
+
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+  invoiceId Int
+
+  @@map("invoice_items")
 }
 
 // enums
