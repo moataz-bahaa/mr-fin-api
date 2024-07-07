@@ -69,6 +69,7 @@ export const postDailyReport = async (req, res, next) => {
         }
       },
       client: true,
+      clientService: true,
     },
   });
 

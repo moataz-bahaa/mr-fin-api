@@ -190,4 +190,5 @@ export const DailyReportSchema = Joi.object({
   end: Joi.string().required(),
   remarks: Joi.string().allow(null).optional(),
   clientId: ForeignKeySchema.optional(),
+  clientServiceId: ForeignKeySchema.optional(),
 });

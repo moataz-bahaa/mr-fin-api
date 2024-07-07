@@ -278,8 +278,8 @@ model EmployeeDailyReport {
   client   Client @relation(fields: [clientId], references: [id])
   clientId Int
 
-  clientService   ClientService @relation(fields: [clientServiceId], references: [id])
-  clientServiceId Int
+  clientService   ClientService? @relation(fields: [clientServiceId], references: [id])
+  clientServiceId Int?
 
   employee   Employee @relation(fields: [employeeId], references: [id])
   employeeId Int
