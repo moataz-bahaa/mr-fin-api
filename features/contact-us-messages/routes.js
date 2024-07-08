@@ -5,4 +5,4 @@ const router = Router();
 
 router.get('/', getContactUsMessages);
 
-export default router
+export default router;

@@ -14,10 +14,12 @@ import appointmentRoutes from './features/appointment/routes.js';
 import authRoues from './features/auth/auth.roues.js';
 import branchRoutes from './features/branch/branch.routes.js';
 import clientRoutes from './features/client/client.routes.js';
+import { postContactUsMessage } from './features/contact-us-messages/controller.js';
 import contactUsMessagesRoutes from './features/contact-us-messages/routes.js';
 import emailRoutes from './features/email/email.routes.js';
 import employeeDailyReportRoutes from './features/employee-daily-report/routes.js';
 import employeeRoutes from './features/employee/employee.routes.js';
+import fileRotues from './features/file/routes.js';
 import invoiceRoutes from './features/invoice/invoice.routes.js';
 import meetingRoutes from './features/meeting/routes.js';
 import reviewRoutes from './features/review/routes.js';
@@ -35,6 +37,7 @@ app.use(morgan('common'));
 
 app.use(APIKeyGuard);
 app.use('/api/auth', authRoues);
+app.post('/api/contact-us', postContactUsMessage);
 app.use(isAuth);
 app.use('/api/branches', branchRoutes);
 app.use('/api/employees', employeeRoutes);
@@ -47,6 +50,7 @@ app.use('/api/invoices', invoiceRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/meetings', meetingRoutes);
+app.use('/api/files', fileRotues);
 app.use('/api/contact-us', contactUsMessagesRoutes);
 
 // error handler

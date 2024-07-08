@@ -7,7 +7,7 @@ import { generateToken } from '../../libs/jwt-utils.js';
 import prisma from '../../prisma/client.js';
 import { sendEmail } from '../../utils/email.js';
 import { BadRequestError, NotFoundError } from '../../utils/errors.js';
-import { validateJoi } from '../../utils/helpers.js';
+import { getPageAndLimitFromQurey, validateJoi } from '../../utils/helpers.js';
 import { AuthService, getUserById } from './auth.service.js';
 
 export const postLogin = async (req, res) => {
@@ -92,6 +92,12 @@ export const postChangePassword = async (req, res) => {
   res
     .status(StatusCodes.OK)
     .json({ message: 'Password changed successfully', updatedUser });
+};
+
+export const getUsers = async (req, res, next) => {
+  const { search } = req.query;
+
+  const { page, limit } = getPageAndLimitFromQurey(req.query);
 };
 
 // TODO optimize
