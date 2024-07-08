@@ -438,11 +438,14 @@ model Appointment {
 
   meeting   Meeting? @relation(fields: [meetingId], references: [id])
   meetingId Int?     @unique
+
+  createdAt DateTime @default(now())
 }
 
 model Meeting {
   id        Int      @id @default(autoincrement())
   url       String   @db.Text
+  timestamp DateTime
   createdAt DateTime @default(now())
 
   accounts    Acccount[]

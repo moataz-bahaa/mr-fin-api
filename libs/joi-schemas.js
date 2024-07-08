@@ -207,5 +207,14 @@ export const PutReviewSchema = Joi.object({
   rate: Joi.number().positive().min(1).max(5).required(),
 });
 
+export const PostAppointmentSchema = Joi.object({
+  subject: Joi.string().required(),
+  clientId: ForeignKeySchema,
+  employeeId: ForeignKeySchema,
+  date: Joi.date().required(),
+  altDate: Joi.date().optional(),
+  createMeeting: Joi.boolean().default(false),
+}).xor('clientId', 'employeeId');
+
 // TODO
 export const PostInvoiceSchema = Joi.object({});
