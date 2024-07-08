@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { upload } from '../../libs/upload.js';
-import { isAdmin, isAuth } from '../../middlewares/auth.middleware.js';
+import {
+  isAdminOrBranchManager,
+  isAuth,
+} from '../../middlewares/auth.middleware.js';
 import {
   deleteEmployee,
   getEmployeeById,
@@ -19,7 +22,7 @@ router.get('/branch/:branchId', getEmployees);
 router.post(
   '/',
   isAuth,
-  isAdmin,
+  isAdminOrBranchManager,
   upload.fields([
     {
       name: 'profileImage',
@@ -36,7 +39,7 @@ router.post(
 router.patch(
   '/:id',
   isAuth,
-  isAdmin,
+  isAdminOrBranchManager,
   upload.fields([
     {
       name: 'profileImage',

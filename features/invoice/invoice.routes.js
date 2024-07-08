@@ -3,7 +3,7 @@ import { getInvoices, postInvoice } from './invoice.controller.js';
 
 const router = Router();
 
-router.get('/', getInvoices);
+router.get('/:clientId', getInvoices);
 
 router.post('/', postInvoice);
 

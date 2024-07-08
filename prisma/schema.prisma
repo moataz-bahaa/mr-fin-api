@@ -57,6 +57,8 @@ model Acccount {
   uploadedFiles  File[]
   notifications  Notification[]
 
+  meetings Meeting[]
+
   @@map("accounts")
 }
 
@@ -141,6 +143,7 @@ model Employee {
   dailyReports  EmployeeDailyReport[]
 
   clientServices ClientService[]
+  Appointment    Appointment[]
 
   @@id([id])
 }
@@ -236,9 +239,12 @@ model Client {
 
   clientServices ClientService[]
 
-  files    File[]
-  invoices Invoice[]
-  services Service[]
+  files       File[]
+  invoices    Invoice[]
+  services    Service[]
+  Appointment Appointment[]
+
+  review Review[]
 
   @@id([id])
   @@map("clients")
@@ -292,7 +298,7 @@ model EmployeeDailyReport {
 model Email {
   id        Int      @id @default(autoincrement())
   subject   String
-  content   String? @db.Text
+  content   String?  @db.Text
   createdAt DateTime @default(now())
 
   sender   Acccount @relation("user_sended_emails", fields: [senderId], references: [id])
@@ -412,6 +418,49 @@ model InvoiceItem {
   invoiceId Int
 
   @@map("invoice_items")
+}
+
+model Appointment {
+  id      Int    @id @default(autoincrement())
+  subject String
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId Int
+
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId Int
+
+  approvedByClient   Boolean @default(false)
+  approvedByEmployee Boolean @default(false)
+
+  date    DateTime
+  altDate DateTime?
+
+  meeting   Meeting? @relation(fields: [meetingId], references: [id])
+  meetingId Int?     @unique
+}
+
+model Meeting {
+  id        Int      @id @default(autoincrement())
+  url       String   @db.Text
+  createdAt DateTime @default(now())
+
+  accounts    Acccount[]
+  appointment Appointment?
+
+  @@map("meetings")
+}
+
+model Review {
+  id      Int     @id @default(autoincrement())
+  title   String?
+  content String? @db.Text
+  rate    Int
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId Int    @unique
+
+  @@map("clients_reviews")
 }
 
 // enums

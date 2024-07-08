@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { upload } from '../../libs/upload.js';
-import { isAdmin, isAuth } from '../../middlewares/auth.middleware.js';
+import {
+  isAdminOrBranchManager,
+  isAuth,
+} from '../../middlewares/auth.middleware.js';
 import {
   deleteClient,
   getClientById,
@@ -20,7 +23,7 @@ router.get('/:id', getClientById);
 router.post(
   '/',
   isAuth,
-  isAdmin,
+  isAdminOrBranchManager,
   upload.fields([
     {
       name: 'profileImage',
@@ -38,8 +41,8 @@ router.patch('/services', patchClientServices);
 
 router.patch(
   '/:id',
-  isAdmin,
-  isAdmin,
+  isAdminOrBranchManager,
+  isAdminOrBranchManager,
   upload.fields([
     {
       name: 'profileImage',
@@ -55,6 +58,6 @@ router.patch(
 
 router.put('/:id/services', putClientServices);
 
-router.delete('/:id', isAuth, isAdmin, deleteClient);
+router.delete('/:id', isAuth, isAdminOrBranchManager, deleteClient);
 
 export default router;

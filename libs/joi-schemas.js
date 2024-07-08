@@ -198,5 +198,14 @@ export const PostEmailSchema = Joi.object({
   content: Joi.string(),
   serviceId: ForeignKeySchema.optional(),
   parentEmailId: ForeignKeySchema.optional(),
-  receivers: Joi.array().items(ForeignKeySchema).default([])
+  receivers: Joi.array().items(ForeignKeySchema).default([]),
 });
+
+export const PutReviewSchema = Joi.object({
+  title: Joi.string().optional(),
+  content: Joi.string().optional(),
+  rate: Joi.number().positive().min(1).max(5).required(),
+});
+
+// TODO
+export const PostInvoiceSchema = Joi.object({});

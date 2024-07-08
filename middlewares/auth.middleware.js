@@ -46,8 +46,8 @@ export const isAuth = async (req, res, next) => {
   return next();
 };
 
-export const isAdmin = (req, res, next) => {
-  if (!req.account.isAdmin) {
+export const isAdminOrBranchManager = (req, res, next) => {
+  if (!req.account.isAdmin && !req.account.isBranchManager) {
     throw new ForbidenError();
   }
   next();
