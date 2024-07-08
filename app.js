@@ -19,6 +19,7 @@ import emailRoutes from './features/email/email.routes.js';
 import employeeDailyReportRoutes from './features/employee-daily-report/routes.js';
 import employeeRoutes from './features/employee/employee.routes.js';
 import invoiceRoutes from './features/invoice/invoice.routes.js';
+import meetingRoutes from './features/meeting/routes.js';
 import reviewRoutes from './features/review/routes.js';
 import serviceRoutes from './features/service/service.routes.js';
 import teamRoutes from './features/team/team.routes.js';
@@ -45,6 +46,7 @@ app.use('/api/emails', emailRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/meetings', meetingRoutes);
 app.use('/api/contact-us', contactUsMessagesRoutes);
 
 // error handler
