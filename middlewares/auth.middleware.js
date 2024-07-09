@@ -15,7 +15,7 @@ export const isAuth = async (req, res, next) => {
     if (!payload) {
       throw new UnAuthenticatedError();
     }
-    const account = await prisma.acccount.findUnique({
+    const account = await prisma.account.findUnique({
       where: {
         // @ts-ignore
         id: payload.id,
@@ -47,8 +47,24 @@ export const isAuth = async (req, res, next) => {
   return next();
 };
 
+export const isAdmin = (req, res, next) => {
+  if (!req.account.isAdmin) {
+    throw new ForbidenError();
+  }
+  next();
+};
 export const isAdminOrBranchManager = (req, res, next) => {
   if (!req.account.isAdmin && !req.account.isBranchManager) {
+    throw new ForbidenError();
+  }
+  next();
+};
+export const isAdminOrBranchManagerOrClient = (req, res, next) => {
+  if (
+    !req.account.isAdmin &&
+    !req.account.isBranchManager &&
+    !req.acccount.isClient
+  ) {
     throw new ForbidenError();
   }
   next();
@@ -69,7 +85,11 @@ export const isClient = (req, res, next) => {
 };
 
 export const isAdminOrEmploee = (req, res, next) => {
-  if (!req.account.isAdmin && !req.account.isEmployee) {
+  if (
+    !req.account.isAdmin &&
+    !req.account.isBranchManager &&
+    !req.account.isEmployee
+  ) {
     throw new ForbidenError();
   }
   next();

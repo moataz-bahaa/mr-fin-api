@@ -196,7 +196,7 @@ export const postEmployee = async (req, res, next) => {
     ...data
   } = validateJoi(EmployeeSchema, req.body);
 
-  const isUserNameExists = await prisma.acccount.findUnique({
+  const isUserNameExists = await prisma.account.findUnique({
     where: {
       email,
     },
@@ -295,7 +295,7 @@ export const patchEmployee = async (req, res, next) => {
   });
 
   if (email) {
-    const isUserNameExists = await prisma.acccount.findUnique({
+    const isUserNameExists = await prisma.account.findUnique({
       where: {
         email,
       },
@@ -410,7 +410,7 @@ export const deleteEmployee = async (req, res, next) => {
     where: { id },
   });
 
-  await prisma.acccount.delete({
+  await prisma.account.delete({
     where: {
       id,
     },
@@ -420,4 +420,11 @@ export const deleteEmployee = async (req, res, next) => {
     status: STATUS.SUCCESS,
     message: MESSAGES.DELETED,
   });
+};
+
+export const getEmployeesProductavity = async (req, res, next) => {
+  // TODO
+  /**
+   * check: https://www.figma.com/design/98C7dz8DKuIlhkJGXRfTnN/standared-map?node-id=744-2840&t=7H7DICNeuAht6PUt-4
+   */
 };

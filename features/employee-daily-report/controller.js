@@ -1,7 +1,12 @@
 import { StatusCodes } from 'http-status-codes';
-import { STATUS, accountDataToSelect } from '../../libs/constants.js';
+import {
+  STATUS,
+  clientDataToSelect,
+  employeeDataToSelect,
+} from '../../libs/constants.js';
 import { DailyReportSchema } from '../../libs/joi-schemas.js';
 import prisma from '../../prisma/client.js';
+import { ForbidenError } from '../../utils/errors.js';
 import {
   getPageAndLimitFromQurey,
   getPagination,
@@ -9,7 +14,6 @@ import {
   validateJoi,
 } from '../../utils/helpers.js';
 import { MESSAGES } from '../../utils/messages.js';
-import { ForbidenError } from '../../utils/errors.js';
 
 export const getDailyReports = async (req, res, next) => {
   const { page, limit } = getPageAndLimitFromQurey(req.query);
@@ -27,18 +31,10 @@ export const getDailyReports = async (req, res, next) => {
   const data = await getPagination('employeeDailyReport', page, limit, filter, {
     include: {
       client: {
-        include: {
-          account: {
-            select: accountDataToSelect,
-          }
-        }
+        select: clientDataToSelect,
       },
       employee: {
-        include: {
-          account: {
-            select: accountDataToSelect,
-          }
-        }
+        select: employeeDataToSelect,
       },
     },
   });
@@ -62,13 +58,11 @@ export const postDailyReport = async (req, res, next) => {
     data,
     include: {
       employee: {
-        include: {
-          account: {
-            select: accountDataToSelect,
-          }
-        }
+        select: employeeDataToSelect,
       },
-      client: true,
+      client: {
+        select: clientDataToSelect,
+      },
       task: true,
     },
   });

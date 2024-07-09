@@ -1,19 +1,24 @@
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import { comparePassword, hashPassword } from '../../libs/bcrypt.js';
-import { STATUS } from '../../libs/constants.js';
+import { accountDataToSelect, STATUS } from '../../libs/constants.js';
 import { AccountSchema } from '../../libs/joi-schemas.js';
 import { generateToken } from '../../libs/jwt-utils.js';
 import prisma from '../../prisma/client.js';
 import { sendEmail } from '../../utils/email.js';
 import { BadRequestError, NotFoundError } from '../../utils/errors.js';
-import { getPageAndLimitFromQurey, validateJoi } from '../../utils/helpers.js';
+import {
+  getPageAndLimitFromQurey,
+  getPagination,
+  toNumber,
+  validateJoi,
+} from '../../utils/helpers.js';
 import { AuthService, getUserById } from './auth.service.js';
 
 export const postLogin = async (req, res) => {
   const { email, password } = validateJoi(AccountSchema, req.body);
 
-  const account = await prisma.acccount.findUnique({
+  const account = await prisma.account.findUnique({
     where: { email },
     include: {
       admin: true,
@@ -35,7 +40,7 @@ export const postLogin = async (req, res) => {
     throw new BadRequestError('Invalid credentials');
   }
 
-  await prisma.acccount.update({
+  await prisma.account.update({
     where: {
       id: account.id,
     },
@@ -84,7 +89,7 @@ export const postChangePassword = async (req, res) => {
 
   const newHashedPassword = await hashPassword(newPassword);
 
-  const updatedUser = await prisma.acccount.update({
+  const updatedUser = await prisma.account.update({
     where: { id: userId },
     data: { hashedPassword: newHashedPassword },
   });
@@ -95,16 +100,123 @@ export const postChangePassword = async (req, res) => {
 };
 
 export const getUsers = async (req, res, next) => {
-  const { search } = req.query;
+  const branchId = toNumber(req.params.branchId);
+  const { search = '' } = req.query;
+
+  console.log({ branchId });
 
   const { page, limit } = getPageAndLimitFromQurey(req.query);
+
+  const filter = {
+    AND: [
+      {
+        OR: [
+          {
+            client: {
+              branchId,
+            },
+          },
+          {
+            employee: {
+              branchId,
+            },
+          },
+        ],
+      },
+      {
+        OR: [
+          {
+            email: {
+              contains: search,
+            },
+          },
+          {
+            client: {
+              name: {
+                contains: search,
+              },
+            },
+          },
+          {
+            employee: {
+              OR: [
+                {
+                  firstName: {
+                    contains: search,
+                  },
+                },
+                {
+                  lastName: {
+                    contains: search,
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ],
+  };
+
+  const data = await getPagination('account', page, limit, filter, {
+    select: {
+      ...accountDataToSelect,
+      admin: true,
+      employee: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          personalNumber: true,
+          title: true,
+          salutation: true,
+          phone: true,
+          username: true,
+          gender: true,
+        },
+      },
+      client: {
+        select: {
+          id: true,
+          salutation: true,
+          name: true,
+          username: true,
+          companyName: true,
+          phoneLandline: true,
+          phoneMobile: true,
+          gender: true,
+          maidenName: true,
+        },
+      },
+    },
+  });
+
+  data.accounts = data.accounts.map((account) => {
+    return {
+      ...account,
+      client: undefined,
+      employee: undefined,
+      admin: undefined,
+      name:
+        account.admin?.name ??
+        account?.client?.name ??
+        `${account.employee?.firstName ?? ''} ${
+          account.employee?.lastName ?? ''
+        }`,
+    };
+  });
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
+    ...data,
+  });
 };
 
 // TODO optimize
 export const postForgetPassword = async (req, res) => {
   const { email } = req.body;
 
-  const user = await prisma.acccount.findUnique({
+  const user = await prisma.account.findUnique({
     where: { email },
   });
 

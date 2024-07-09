@@ -6,9 +6,11 @@ import { toNumber } from '../../utils/index.js';
 
 export const getClientFiles = async (req, res, next) => {
   const clientId = toNumber(req.params.clientId);
+  const { serviceId } = req.query;
 
   const files = await prisma.file.findMany({
     where: {
+      serviceId: serviceId ? toNumber(serviceId) : undefined,
       OR: [
         {
           clientId,

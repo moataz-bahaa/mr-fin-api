@@ -11,6 +11,7 @@ import {
   validateJoi,
 } from '../../utils/helpers.js';
 import { toNumber } from '../../utils/index.js';
+import { MESSAGES } from '../../utils/messages.js';
 
 export const postEmail = async (req, res, next) => {
   const { subject, content, receivers, serviceId, parentEmailId } = validateJoi(
@@ -71,11 +72,27 @@ export const postEmail = async (req, res, next) => {
 };
 
 export const getEmails = async (req, res, next) => {
-  const { type, branchId, search, showAll = 'true' } = req.query;
+  // TODO review and order desc by date
+  const {
+    type,
+    branchId,
+    search,
+    serviceId,
+    showAll = 'true',
+    isReaded,
+  } = req.query;
 
   const { page, limit: count } = getPageAndLimitFromQurey(req.query);
 
   const filter = {};
+
+  if (serviceId) {
+    filter.serviceId = toNumber(serviceId);
+  }
+
+  if (isReaded) {
+    filter.isReaded = isReaded === 'true';
+  }
 
   if (
     (req.account.isAdmin || req.account.isBranchManager) &&
@@ -224,5 +241,29 @@ export const getEmailById = async (req, res, next) => {
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
     email,
+  });
+};
+
+export const patchMarkEmailAsReaded = async (req, res, next) => {
+  const id = toNumber(req.params.id);
+
+  await prisma.email.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  await prisma.email.update({
+    where: {
+      id,
+    },
+    data: {
+      isReaded: true,
+    },
+  });
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
+    message: MESSAGES.UPDATED,
   });
 };

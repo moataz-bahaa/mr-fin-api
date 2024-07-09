@@ -3,12 +3,12 @@ import { hashPassword } from '../../libs/bcrypt.js';
 import {
   STATUS,
   accountDataToSelect,
+  clientDataToSelect,
   fileDataToSelect,
 } from '../../libs/constants.js';
 import {
   ClientSchema,
   ClientServicesSchema,
-  PatchClientService,
   UpdateClientSchema,
 } from '../../libs/joi-schemas.js';
 import prisma from '../../prisma/client.js';
@@ -117,10 +117,11 @@ export const postClient = async (req, res, next) => {
     account: { email, password },
     branchId,
     teamId,
+    filesServiceId,
     ...data
   } = validateJoi(ClientSchema, req.body);
 
-  const isUserNameExists = await prisma.acccount.findUnique({
+  const isUserNameExists = await prisma.account.findUnique({
     where: {
       email,
     },
@@ -134,6 +135,7 @@ export const postClient = async (req, res, next) => {
     req.files?.files?.map((f) => {
       return {
         url: getUrl(req, f.path),
+        serviceId: filesServiceId,
       };
     }) ?? [];
 
@@ -200,6 +202,7 @@ export const patchClient = async (req, res, next) => {
     account: { email, password, status },
     branchId,
     teamId,
+    filesServiceId,
     ...data
   } = validateJoi(UpdateClientSchema, req.body);
 
@@ -210,7 +213,7 @@ export const patchClient = async (req, res, next) => {
   });
 
   if (email) {
-    const isUserNameExists = await prisma.acccount.findUnique({
+    const isUserNameExists = await prisma.account.findUnique({
       where: {
         email,
       },
@@ -225,6 +228,7 @@ export const patchClient = async (req, res, next) => {
     req.files?.files?.map((f) => {
       return {
         url: getUrl(req, f.path),
+        serviceId: filesServiceId,
       };
     }) ?? [];
 
@@ -367,7 +371,7 @@ export const putClientServices = async (req, res, next) => {
         clientId: client.id,
         serviceId,
         // TODO put the real months depending on service.repeatedAt
-        months: ['Jan', 'Feb', 'March'],
+        months: ['Jan 2024', 'Feb 2024', 'March 2024'],
       },
     });
   }
@@ -396,37 +400,36 @@ export const putClientServices = async (req, res, next) => {
   });
 };
 
-export const patchClientTasks = async (req, res, next) => {
-  const tasks = validateJoi(PatchClientService, req.body);
+export const getClientsCalculator = async (req, res, next) => {
+  // TODO
+  // check: https://www.figma.com/design/98C7dz8DKuIlhkJGXRfTnN/standared-map?node-id=1-1515&t=7H7DICNeuAht6PUt-4
+};
 
-  for (const task of tasks) {
-    await prisma.task.findUniqueOrThrow({
-      where: {
-        id: task.id,
+export const getClientOrdersDetails = async (req, res, next) => {
+  // TODO
+  // check https://www.figma.com/design/98C7dz8DKuIlhkJGXRfTnN/standared-map?node-id=119-3370&t=7H7DICNeuAht6PUt-4
+};
+
+export const getClientServices = async (req, res, next) => {
+  const id = toNumber(req.params.id);
+  const client = await prisma.client.findUniqueOrThrow({
+    where: {
+      id,
+    },
+    select: {
+      ...clientDataToSelect,
+      services: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+        },
       },
-    });
-
-    const data = {};
-
-    if (task.employees) {
-      data.employees = {
-        set: task.employees.map((id) => ({ id })),
-      };
-    }
-
-    await prisma.task.update({
-      where: {
-        id: task.id,
-      },
-      data: {
-        isCompleted: task.isCompleted,
-        ...data,
-      },
-    });
-  }
+    },
+  });
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
-    message: MESSAGES.UPDATED,
+    services: client.services,
   });
 };

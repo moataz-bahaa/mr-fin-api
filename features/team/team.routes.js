@@ -5,11 +5,9 @@ import {
   getTeams,
   patchTeam,
   postAddEmployeesToTeam,
-  postAssignClientToTeam,
   postRemoveEmployeesFromTeam,
   postTeam,
 } from './team.controller.js';
-import { isAuth } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
 
@@ -26,7 +24,5 @@ router.delete('/:id', deleteTeam);
 router.post('/remove-employees', postRemoveEmployeesFromTeam);
 
 router.post('/add-employees', postAddEmployeesToTeam);
-
-router.post('/assign-client', isAuth, postAssignClientToTeam)
 
 export default router;

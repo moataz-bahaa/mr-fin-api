@@ -8,15 +8,15 @@ datasource db {
 }
 
 model Service {
-  id             Int     @id @default(autoincrement())
-  name           String
-  description    String?
-  repeadtedEvery Int     @default(0)
+  id            Int     @id @default(autoincrement())
+  name          String
+  description   String?
+  repeatedEvery Int     @default(0)
 
   tasks   Task[]
   clients Client[]
-  Email   Email[]
-  File    File[]
+  emails  Email[]
+  files   File[]
 
   @@map("services")
 }
@@ -38,7 +38,7 @@ model Branch {
   @@map("branches")
 }
 
-model Acccount {
+model Account {
   id              Int            @id @default(autoincrement())
   email           String         @unique @map("userNameOrEmail")
   hashedPassword  String
@@ -66,7 +66,7 @@ model Admin {
   id              Int
   name            String
   profileImageUrl String?
-  account         Acccount @relation(fields: [id], references: [id])
+  account         Account @relation(fields: [id], references: [id])
 
   @@id([id])
   @@map("admins")
@@ -74,7 +74,7 @@ model Admin {
 
 model Employee {
   id      Int
-  account Acccount @relation(fields: [id], references: [id])
+  account Account @relation(fields: [id], references: [id])
 
   // personal details
   personalNumber String?
@@ -175,7 +175,7 @@ model Team {
 
 model Client {
   id      Int
-  account Acccount @relation(fields: [id], references: [id])
+  account Account @relation(fields: [id], references: [id])
 
   salutation   String? @map("anrede")
   title        String?
@@ -300,11 +300,12 @@ model Email {
   subject   String
   content   String?  @db.Text
   createdAt DateTime @default(now())
+  isReaded    Boolean  @default(false)
 
-  sender   Acccount @relation("user_sended_emails", fields: [senderId], references: [id])
+  sender   Account @relation("user_sended_emails", fields: [senderId], references: [id])
   senderId Int
 
-  receivers Acccount[] @relation("user_received_emails")
+  receivers Account[] @relation("user_received_emails")
 
   service   Service? @relation(fields: [serviceId], references: [id])
   serviceId Int?
@@ -341,7 +342,7 @@ model File {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user   Acccount? @relation(fields: [userId], references: [id])
+  user   Account? @relation(fields: [userId], references: [id])
   userId Int?
 
   service   Service? @relation(fields: [serviceId], references: [id])
@@ -367,7 +368,7 @@ model Notification {
   title   String
   content String?
 
-  usre   Acccount @relation(fields: [userId], references: [id])
+  usre   Account @relation(fields: [userId], references: [id])
   userId Int
 
   @@map("notifications")
@@ -448,7 +449,7 @@ model Meeting {
   timestamp DateTime
   createdAt DateTime @default(now())
 
-  accounts    Acccount[]
+  accounts    Account[]
   appointment Appointment?
 
   @@map("meetings")

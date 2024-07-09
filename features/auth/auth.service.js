@@ -2,10 +2,10 @@ import prisma from '../../prisma/client.js';
 import { formateEmployee } from '../employee/employee.service.js';
 
 export const getUserById = (accountId) =>
-  prisma.acccount.findUniqueOrThrow({ where: { id: accountId } });
+  prisma.account.findUniqueOrThrow({ where: { id: accountId } });
 
 export const setUserIsOnline = (userId, value) =>
-  prisma.acccount.update({
+  prisma.account.update({
     where: {
       id: userId,
     },
@@ -16,7 +16,7 @@ export const setUserIsOnline = (userId, value) =>
 
 export const AuthService = {
   async getMe(accountId) {
-    const account = await prisma.acccount.findUniqueOrThrow({
+    const account = await prisma.account.findUniqueOrThrow({
       where: {
         id: accountId,
       },

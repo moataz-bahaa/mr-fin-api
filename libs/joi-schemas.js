@@ -135,6 +135,7 @@ export const ClientSchema = Joi.object({
   officialNumberName: Joi.string().optional(),
   taxOfficeDesignation: Joi.string().optional(),
   taxOfficeComment: Joi.string().optional(),
+  filesServiceId: ForeignKeySchema,
 
   branchId: ForeignKeySchema.required(),
   teamId: ForeignKeySchema,
@@ -190,7 +191,7 @@ export const DailyReportSchema = Joi.object({
   end: Joi.string().required(),
   remarks: Joi.string().allow(null).optional(),
   clientId: ForeignKeySchema.optional(),
-  clientServiceId: ForeignKeySchema.optional(),
+  taskId: ForeignKeySchema.optional(),
 });
 
 export const PostEmailSchema = Joi.object({

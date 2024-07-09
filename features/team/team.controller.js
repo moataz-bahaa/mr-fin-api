@@ -1,10 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { STATUS, accountDataToSelect } from '../../libs/constants.js';
-import {
-  AssingClientToTeamSchema,
-  TeamSchema,
-  UpdateTeamSchema,
-} from '../../libs/joi-schemas.js';
+import { TeamSchema, UpdateTeamSchema } from '../../libs/joi-schemas.js';
 import prisma from '../../prisma/client.js';
 import { BadRequestError } from '../../utils/errors.js';
 import { validateJoi } from '../../utils/helpers.js';
@@ -82,10 +78,10 @@ export const getTeamById = async (req, res, next) => {
               id: true,
               service: true,
               isCompleted: true,
-            }
-          }
-        }
-      }
+            },
+          },
+        },
+      },
     },
   });
 
@@ -273,50 +269,5 @@ export const postAddEmployeesToTeam = async (req, res, next) => {
       ...updatedTeam,
       employees: updatedTeam.employees.map(formateEmployee),
     },
-  });
-};
-
-export const postAssignClientToTeam = async (req, res, next) => {
-  const { clientId, teamId, services } = validateJoi(
-    AssingClientToTeamSchema,
-    req.body
-  );
-
-  const client = await prisma.client.findUniqueOrThrow({
-    where: {
-      id: clientId,
-    },
-  });
-
-  const team = await prisma.team.findFirstOrThrow({
-    where: {
-      id: teamId,
-    },
-  });
-
-  const updatedClient = await prisma.client.update({
-    where: {
-      id: client.id,
-    },
-    data: {
-      teamId,
-      tasks: {
-        create: services.map((id) => ({ serviceId: id }))
-      }
-    },
-    include: {
-      tasks: {
-        select: {
-          id: true,
-          service: true,
-          isCompleted: true,
-        }
-      },
-    }
-  });
-
-  res.status(StatusCodes.OK).json({
-    status: STATUS.SUCCESS,
-    tasks: updatedClient.tasks,
   });
 };
