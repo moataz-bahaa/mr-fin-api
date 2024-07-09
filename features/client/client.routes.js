@@ -9,7 +9,7 @@ import {
   getClientById,
   getClients,
   patchClient,
-  patchClientServices,
+  patchClientTasks,
   postClient,
   putClientServices,
 } from './client.controller.js';
@@ -37,7 +37,7 @@ router.post(
   postClient
 );
 
-router.patch('/services', patchClientServices);
+router.patch('/services', patchClientTasks);
 
 router.patch(
   '/:id',

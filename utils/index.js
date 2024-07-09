@@ -3,8 +3,6 @@ import { BadRequestError } from './errors.js';
 export const toNumber = (value) => {
   const number = +value;
 
-  console.log({ number, value });
-
   if (isNaN(number)) {
     throw new BadRequestError('invalid number');
   }

@@ -25,9 +25,8 @@ export const AuthService = {
         client: {
           include: {
             files: true,
-            clientServices: true,
             team: true,
-          }
+          },
         },
         employee: {
           include: {
@@ -42,9 +41,13 @@ export const AuthService = {
 
     const role = account.admin
       ? 'admin'
-      : account.employee
-      ? 'employee'
-      : 'client';
+      : account.client
+      ? 'client'
+      : account.employee.roleId === 1
+      ? 'branch-manager'
+      : account.employee.roleId === 2
+      ? 'team-leader'
+      : 'employee';
 
     let orFilter = [];
 
@@ -103,7 +106,8 @@ export const AuthService = {
         lastLoginAt: account.lastLoginAt,
         logoutAt: account.logoutAt,
       },
-      userData: account.admin ?? formateEmployee(account.employee) ?? account.client,
+      userData:
+        account.admin ?? formateEmployee(account.employee) ?? account.client,
       branches,
     };
   },

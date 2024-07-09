@@ -91,7 +91,7 @@ export const getClientById = async (req, res, next) => {
         select: accountDataToSelect,
       },
       branch: true,
-      clientServices: {
+      tasks: {
         select: {
           id: true,
           service: true,
@@ -181,7 +181,6 @@ export const postClient = async (req, res, next) => {
       },
       branch: true,
       team: true,
-      clientServices: true,
       files: {
         select: fileDataToSelect,
       },
@@ -295,7 +294,6 @@ export const patchClient = async (req, res, next) => {
       },
       branch: true,
       team: true,
-      clientServices: true,
       files: {
         select: fileDataToSelect,
       },
@@ -364,7 +362,7 @@ export const putClientServices = async (req, res, next) => {
     });
 
     // add task
-    await prisma.clientService.create({
+    await prisma.task.create({
       data: {
         clientId: client.id,
         serviceId,
@@ -398,30 +396,30 @@ export const putClientServices = async (req, res, next) => {
   });
 };
 
-export const patchClientServices = async (req, res, next) => {
-  const clientServices = validateJoi(PatchClientService, req.body);
+export const patchClientTasks = async (req, res, next) => {
+  const tasks = validateJoi(PatchClientService, req.body);
 
-  for (const clientService of clientServices) {
-    await prisma.clientService.findUniqueOrThrow({
+  for (const task of tasks) {
+    await prisma.task.findUniqueOrThrow({
       where: {
-        id: clientService.id,
+        id: task.id,
       },
     });
 
     const data = {};
 
-    if (clientService.employees) {
+    if (task.employees) {
       data.employees = {
-        set: clientService.employees.map((id) => ({ id })),
+        set: task.employees.map((id) => ({ id })),
       };
     }
 
-    await prisma.clientService.update({
+    await prisma.task.update({
       where: {
-        id: clientService.id,
+        id: task.id,
       },
       data: {
-        isCompleted: clientService.isCompleted,
+        isCompleted: task.isCompleted,
         ...data,
       },
     });

@@ -36,6 +36,7 @@ export const isAuth = async (req, res, next) => {
     req.account.isEmployee = account.employee ? true : false;
     req.account.isClient = account.client ? true : false;
     req.account.isBranchManager = req.account.employee?.roleId === 1;
+    req.account.isTeamLeader = req.account.employee?.roleId === 2;
   } catch (err) {
     throw new UnAuthenticatedError(
       typeof err.message === 'string' ? err.message : undefined
@@ -62,6 +63,13 @@ export const isEmployee = (req, res, next) => {
 
 export const isClient = (req, res, next) => {
   if (!req.account.isClient) {
+    throw new ForbidenError();
+  }
+  next();
+};
+
+export const isAdminOrEmploee = (req, res, next) => {
+  if (!req.account.isAdmin && !req.account.isEmployee) {
     throw new ForbidenError();
   }
   next();

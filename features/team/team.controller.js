@@ -77,7 +77,7 @@ export const getTeamById = async (req, res, next) => {
           account: {
             select: accountDataToSelect,
           },
-          clientServices: {
+          tasks: {
             select: {
               id: true,
               service: true,
@@ -294,24 +294,18 @@ export const postAssignClientToTeam = async (req, res, next) => {
     },
   });
 
-  await prisma.clientService.deleteMany({
-    where: {
-      clientId: client.id,
-    }
-  })
-
   const updatedClient = await prisma.client.update({
     where: {
       id: client.id,
     },
     data: {
       teamId,
-      clientServices: {
+      tasks: {
         create: services.map((id) => ({ serviceId: id }))
       }
     },
     include: {
-      clientServices: {
+      tasks: {
         select: {
           id: true,
           service: true,
@@ -323,6 +317,6 @@ export const postAssignClientToTeam = async (req, res, next) => {
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
-    clientServices: updatedClient.clientServices,
+    tasks: updatedClient.tasks,
   });
 };

@@ -26,6 +26,7 @@ import reviewRoutes from './features/review/routes.js';
 import serviceRoutes from './features/service/service.routes.js';
 import teamRoutes from './features/team/team.routes.js';
 import { APIKeyGuard } from './middlewares/api-key.middleware.js';
+import taskRoutes from './features/task/routes.js';
 
 const app = express();
 
@@ -51,6 +52,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/meetings', meetingRoutes);
 app.use('/api/files', fileRotues);
+app.use('/api/tasks', taskRoutes);
 app.use('/api/contact-us', contactUsMessagesRoutes);
 
 // error handler

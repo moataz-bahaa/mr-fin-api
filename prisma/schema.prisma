@@ -8,15 +8,15 @@ datasource db {
 }
 
 model Service {
-  id            Int     @id @default(autoincrement())
-  name          String
-  description   String?
-  repeatdeEvery Int     @default(0)
+  id             Int     @id @default(autoincrement())
+  name           String
+  description    String?
+  repeadtedEvery Int     @default(0)
 
-  clientServices ClientService[]
-  clients        Client[]
-  Email          Email[]
-  File           File[]
+  tasks   Task[]
+  clients Client[]
+  Email   Email[]
+  File    File[]
 
   @@map("services")
 }
@@ -142,8 +142,8 @@ model Employee {
   team          Team?                 @relation("team_members", fields: [teamId], references: [id])
   dailyReports  EmployeeDailyReport[]
 
-  clientServices ClientService[]
-  Appointment    Appointment[]
+  tasks       Task[]
+  Appointment Appointment[]
 
   @@id([id])
 }
@@ -237,7 +237,7 @@ model Client {
 
   team Team? @relation(fields: [teamId], references: [id])
 
-  clientServices ClientService[]
+  tasks Task[]
 
   files       File[]
   invoices    Invoice[]
@@ -250,7 +250,7 @@ model Client {
   @@map("clients")
 }
 
-model ClientService {
+model Task {
   id     Int  @id @default(autoincrement())
   months Json @default("[]")
 
@@ -284,8 +284,8 @@ model EmployeeDailyReport {
   client   Client @relation(fields: [clientId], references: [id])
   clientId Int
 
-  clientService   ClientService? @relation(fields: [clientServiceId], references: [id])
-  clientServiceId Int?
+  task   Task? @relation(fields: [taskId], references: [id])
+  taskId Int?
 
   employee   Employee @relation(fields: [employeeId], references: [id])
   employeeId Int
