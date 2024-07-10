@@ -22,7 +22,7 @@ export const fileDataToSelect = {
   updatedAt: true,
 };
 
-export const employeeDataToSelect = {
+export const employeeFieldsToSelectWithoutAccount = {
   id: true,
   firstName: true,
   lastName: true,
@@ -32,12 +32,8 @@ export const employeeDataToSelect = {
   phone: true,
   username: true,
   gender: true,
-  account: {
-    select: accountDataToSelect,
-  },
 };
-
-export const clientDataToSelect = {
+export const clientFieldsToSelectWithoutAccount = {
   id: true,
   salutation: true,
   name: true,
@@ -47,6 +43,17 @@ export const clientDataToSelect = {
   phoneMobile: true,
   gender: true,
   maidenName: true,
+};
+
+export const employeeDataToSelect = {
+  ...employeeFieldsToSelectWithoutAccount,
+  account: {
+    select: accountDataToSelect,
+  },
+};
+
+export const clientDataToSelect = {
+  ...clientFieldsToSelectWithoutAccount,
   account: {
     select: accountDataToSelect,
   },

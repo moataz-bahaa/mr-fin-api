@@ -1,5 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
-import { STATUS } from '../../libs/constants.js';
+import {
+  accountDataToSelect,
+  clientFieldsToSelectWithoutAccount,
+  employeeFieldsToSelectWithoutAccount,
+  STATUS,
+} from '../../libs/constants.js';
 import { PostEmailSchema } from '../../libs/joi-schemas.js';
 import { sendSocketEmail } from '../../libs/socket.js';
 import prisma from '../../prisma/client.js';
@@ -208,12 +213,36 @@ export const getEmails = async (req, res, next) => {
   const data = await getPagination('email', page, count, filter, {
     select: {
       id: true,
-      sender: true,
+      sender: {
+        select: {
+          ...accountDataToSelect,
+          admin: true,
+          employee: {
+            select: employeeFieldsToSelectWithoutAccount,
+          },
+          client: {
+            select: clientFieldsToSelectWithoutAccount,
+          },
+        },
+      },
       subject: true,
       createdAt: true,
       service: true,
     },
   });
+
+  data.emails = data.emails.map((email) => {
+    return {
+      ...email,
+      sender: {
+        ...email.sender,
+        admin: undefined,
+        client: undefined,
+        employee: undefined,
+        name: email.sender?.admin?.name ?? email.sender?.client?.name ?? `${email.sender?.employee?.firstName} ${email.sender?.employee?.lastName}`
+      }
+    }
+  })
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
