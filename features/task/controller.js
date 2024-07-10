@@ -5,6 +5,7 @@ import {
   employeeDataToSelect,
   STATUS,
 } from '../../libs/constants.js';
+import { PatchClientService } from '../../libs/joi-schemas.js';
 import prisma from '../../prisma/client.js';
 import { BadRequestError } from '../../utils/errors.js';
 import {
@@ -13,7 +14,6 @@ import {
   validateJoi,
 } from '../../utils/helpers.js';
 import { toNumber } from '../../utils/index.js';
-import { PatchClientService } from '../../libs/joi-schemas.js';
 import { MESSAGES } from '../../utils/messages.js';
 
 export const getChecklist = async (req, res, next) => {
@@ -94,17 +94,19 @@ export const getTasks = async (req, res, next) => {
   const filter = {};
 
   if (req.account.isAdmin || req.account.isBranchManager) {
-    if (!branchId) {
+    if (!branchId && !clientId) {
       throw new BadRequestError(
         'For admins and branch managers branchId must be sent'
       );
     }
 
-    filter.employees = {
-      some: {
-        branchId: toNumber(branchId),
-      },
-    };
+    if (branchId) {
+      filter.employees = {
+        some: {
+          branchId: toNumber(branchId),
+        },
+      };
+    }
   } else if (req.account.isTeamLeader) {
     const team = await prisma.team.findUnique({
       where: {
@@ -161,6 +163,13 @@ export const getTasks = async (req, res, next) => {
           description: true,
         },
       },
+      employees: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
     },
   });
 
@@ -211,6 +220,7 @@ export const patchTasks = async (req, res, next) => {
   const tasks = validateJoi(PatchClientService, req.body);
 
   for (const task of tasks) {
+    console.log({ task });
     await prisma.task.findUniqueOrThrow({
       where: {
         id: task.id,

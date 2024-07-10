@@ -178,7 +178,7 @@ export const ClientServicesSchema = Joi.array().items(Joi.number()).default([]);
 export const PatchClientService = Joi.array().items(
   Joi.object({
     id: Joi.number().required(),
-    isCompleted: Joi.boolean().required(),
+    isCompleted: Joi.boolean().optional(),
     employees: Joi.array().items(Joi.number()).optional(),
   })
 );

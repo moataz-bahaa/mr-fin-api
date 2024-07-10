@@ -153,17 +153,19 @@ export const getMeetings = async (req, res, next) => {
         let userData = {};
         if (role === 'admin') {
           userData = {
-            name: account.admin.name,
+            name: account.admin?.name,
           };
         } else if (role === 'employee') {
           userData = {
-            name: `${account.employee.firstName} ${account.employee.lastName}`,
+            name: `${account.employee?.firstName} ${account.employee?.lastName}`,
           };
         } else {
           userData = {
-            name: account.name,
+            name: account.client?.name,
           };
         }
+
+        console.log(userData);
 
         return {
           id: account.id,

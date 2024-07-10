@@ -67,25 +67,29 @@ export const getAppointments = async (req, res, next) => {
   const { page, limit } = getPageAndLimitFromQurey(req.query);
   const { startDate, endDate } = req.query;
 
+  console.log({ startDate, endDate });
+
   const data = await getPagination(
     'appointment',
     page,
     limit,
     {
-      OR: [
-        {
-          clientId: req.account.id,
-        },
-        {
-          employeeId: req.account.id,
-        },
-      ],
       AND: [
+        {
+          OR: [
+            {
+              clientId: req.account.id,
+            },
+            {
+              employeeId: req.account.id,
+            },
+          ],
+        },
         {
           date: startDate ? { gte: new Date(startDate) } : undefined,
         },
         {
-          date: endDate ? { gte: new Date(endDate) } : undefined,
+          date: endDate ? { lte: new Date(endDate) } : undefined,
         },
       ],
     },
