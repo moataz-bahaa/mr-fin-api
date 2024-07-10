@@ -85,6 +85,7 @@ export const getEmails = async (req, res, next) => {
     serviceId,
     showAll = 'true',
     isReaded,
+    fetchFor, // client or employee
   } = req.query;
 
   const { page, limit: count } = getPageAndLimitFromQurey(req.query);
@@ -207,6 +208,26 @@ export const getEmails = async (req, res, next) => {
           },
         },
       ],
+    });
+  }
+
+  if (fetchFor === 'client') {
+    filter.AND.push({
+      // @ts-ignore
+      sender: {
+        client: {
+          isNot: null,
+        },
+      },
+    });
+  } else if (fetchFor === 'employee') {
+    filter.AND.push({
+      // @ts-ignore
+      sender: {
+        employee: {
+          isNot: null,
+        },
+      },
     });
   }
 
