@@ -228,6 +228,18 @@ export const getEmails = async (req, res, next) => {
       subject: true,
       createdAt: true,
       service: true,
+      receivers: {
+        select: {
+          ...accountDataToSelect,
+          admin: true,
+          employee: {
+            select: employeeFieldsToSelectWithoutAccount,
+          },
+          client: {
+            select: clientFieldsToSelectWithoutAccount,
+          },
+        },
+      },
     },
   });
 
@@ -239,10 +251,25 @@ export const getEmails = async (req, res, next) => {
         admin: undefined,
         client: undefined,
         employee: undefined,
-        name: email.sender?.admin?.name ?? email.sender?.client?.name ?? `${email.sender?.employee?.firstName} ${email.sender?.employee?.lastName}`
-      }
-    }
-  })
+        name:
+          email.sender?.admin?.name ??
+          email.sender?.client?.name ??
+          `${email.sender?.employee?.firstName} ${email.sender?.employee?.lastName}`,
+        receivers: email.receivers.map((a) => {
+          return {
+            ...a,
+            admin: undefined,
+            client: undefined,
+            employee: undefined,
+            name:
+              a?.admin?.name ??
+              a?.client?.name ??
+              `${a?.employee?.firstName} ${a?.employee?.lastName}`,
+          };
+        }),
+      },
+    };
+  });
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,

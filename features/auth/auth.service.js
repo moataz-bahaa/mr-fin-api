@@ -105,6 +105,7 @@ export const AuthService = {
         isOnline: account.isOnline,
         lastLoginAt: account.lastLoginAt,
         logoutAt: account.logoutAt,
+        profileImageUrl: account.profileImageUrl
       },
       userData:
         account.admin ?? formateEmployee(account.employee) ?? account.client,
