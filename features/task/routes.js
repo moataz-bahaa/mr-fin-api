@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { isAdminOrEmploee } from '../../middlewares/auth.middleware.js';
+import { isAdminOrEmploee, isClient } from '../../middlewares/auth.middleware.js';
 import {
   getChecklist,
+  getClientTasks,
   getTaskById,
   getTasks,
   getTeamsTasks,
@@ -11,6 +12,8 @@ import {
 const router = Router();
 
 router.get('/', isAdminOrEmploee, getTasks);
+
+router.get('/client/me', isClient, getClientTasks);
 
 router.get('/teams/:branchId', isAdminOrEmploee, getTeamsTasks);
 

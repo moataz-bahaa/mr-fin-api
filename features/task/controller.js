@@ -179,6 +179,47 @@ export const getTasks = async (req, res, next) => {
   });
 };
 
+export const getClientTasks = async (req, res, next) => {
+  const { page, limit } = getPageAndLimitFromQurey(req.query);
+  const { status, serviceId } = req.query;
+
+  const filter = {
+    clientId: req.account.id,
+  };
+
+  if (status) {
+    filter.isCompleted = status === 'completed';
+  }
+
+  if (serviceId) {
+    filter.serviceId = toNumber(serviceId);
+  }
+
+  const data = await getPagination('task', page, limit, filter, {
+    include: {
+      service: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+        },
+      },
+      employees: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+  });
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
+    ...data,
+  });
+};
+
 export const getTaskById = async (req, res, next) => {
   const id = toNumber(req.params.id);
 
