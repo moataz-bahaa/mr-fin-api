@@ -63,7 +63,7 @@ export const isAdminOrBranchManagerOrClient = (req, res, next) => {
   if (
     !req.account.isAdmin &&
     !req.account.isBranchManager &&
-    !req.acccount.isClient
+    !req.account.isClient
   ) {
     throw new ForbidenError();
   }
