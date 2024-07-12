@@ -4,7 +4,6 @@ import {
   getPageAndLimitFromQurey,
   getPagination,
 } from '../../utils/helpers.js';
-import prisma from '../../prisma/client.js';
 
 export const postMeeting = async (req, res, next) => {
   // TODO
@@ -13,7 +12,6 @@ export const postMeeting = async (req, res, next) => {
 export const getMeetings = async (req, res, next) => {
   const { page, limit } = getPageAndLimitFromQurey(req.query);
   const { search, type } = req.query;
-  // filter may be client / employees
 
   const andFilter = [];
 
@@ -32,47 +30,39 @@ export const getMeetings = async (req, res, next) => {
         {
           accounts: {
             some: {
-              OR: [
-                {
-                  client: {
-                    name: {
-                      contains: search,
-                    },
-                  },
+              client: {
+                name: {
+                  contains: search,
                 },
-                {
-                  employee: {
-                    OR: [
-                      {
-                        firstName: {
-                          contains: search,
-                        },
-                        lastName: {
-                          contains: search,
-                        },
-                      },
-                    ],
-                  },
+              },
+            },
+          },
+        },
+        {
+          accounts: {
+            some: {
+              employee: {
+                firstName: {
+                  contains: search,
                 },
-              ],
+              },
+            },
+          },
+        },
+        {
+          accounts: {
+            some: {
+              employee: {
+                lastName: {
+                  contains: search,
+                },
+              },
             },
           },
         },
       ],
     });
   }
-
-  // prisma.meeting.findMany({
-  //   where: {
-  //     accounts: {
-  //       some: {
-  //         client: {
-  //           NOT: null
-  //         }
-  //       }
-  //     }
-  //   }
-  // })
 
   if (type === 'employee') {
     andFilter.push({
@@ -164,8 +154,6 @@ export const getMeetings = async (req, res, next) => {
             name: account.client?.name,
           };
         }
-
-        console.log(userData);
 
         return {
           id: account.id,

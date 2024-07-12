@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { isAuth } from '../../middlewares/auth.middleware.js';
 import {
   getMe,
+  getMyContacts,
   getUsers,
   postChangePassword,
   postForgetPassword,
@@ -13,6 +14,8 @@ const router = Router();
 router.post('/login', postLogin);
 
 router.get('/me', isAuth, getMe);
+
+router.get('/my-contacts', isAuth, getMyContacts);
 
 router.get('/search/:branchId', getUsers);
 

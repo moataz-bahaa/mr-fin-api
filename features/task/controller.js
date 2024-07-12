@@ -5,7 +5,7 @@ import {
   employeeDataToSelect,
   STATUS,
 } from '../../libs/constants.js';
-import { PatchClientService } from '../../libs/joi-schemas.js';
+import { PatchClientService, TaskSchema } from '../../libs/joi-schemas.js';
 import prisma from '../../prisma/client.js';
 import { BadRequestError } from '../../utils/errors.js';
 import {
@@ -209,6 +209,9 @@ export const getClientTasks = async (req, res, next) => {
           id: true,
           firstName: true,
           lastName: true,
+          account: {
+            select: accountDataToSelect,
+          },
         },
       },
     },
@@ -371,5 +374,50 @@ export const getTeamsTasks = async (req, res, next) => {
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
     teams,
+  });
+};
+
+export const postTask = async (req, res, next) => {
+  const data = validateJoi(TaskSchema, req.body);
+
+  data.employees = {
+    connect: data.employees.map((id) => ({ id })),
+  };
+
+  const task = await prisma.task.create({
+    data,
+    include: {
+      client: {
+        select: clientDataToSelect,
+      },
+      service: true,
+      employees: {
+        select: employeeDataToSelect,
+      },
+    },
+  });
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
+    task,
+  });
+};
+
+export const deleteTask = async (req, res, next) => {
+  const id = toNumber(req.params.id);
+
+  await prisma.task.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+  await prisma.task.delete({
+    where: {
+      id,
+    },
+  });
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
   });
 };

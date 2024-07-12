@@ -3,6 +3,7 @@ import { hashPassword } from '../../libs/bcrypt.js';
 import {
   STATUS,
   accountDataToSelect,
+  clientDataToSelect,
   fileDataToSelect,
 } from '../../libs/constants.js';
 import {
@@ -423,8 +424,88 @@ export const deleteEmployee = async (req, res, next) => {
 };
 
 export const getEmployeesProductavity = async (req, res, next) => {
-  // TODO
-  /**
-   * check: https://www.figma.com/design/98C7dz8DKuIlhkJGXRfTnN/standared-map?node-id=744-2840&t=7H7DICNeuAht6PUt-4
-   */
+  const branchId = toNumber(req.params.branchId);
+  const employees = await prisma.employee.findMany({
+    where: {
+      branchId,
+    },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      salutation: true,
+      account: {
+        select: {
+          ...accountDataToSelect,
+        },
+      },
+      tasks: {
+        select: {
+          client: {
+            select: clientDataToSelect,
+          },
+        },
+        distinct: ['clientId'],
+      },
+    },
+  });
+
+  employees.forEach((emp) => {
+    // @ts-ignore
+    emp.clientsWorkedWith = emp.tasks.flatMap((t) => t.client);
+    delete emp.tasks;
+  });
+
+  for (const employee of employees) {
+    // @ts-ignore
+    for (const client of employee.clientsWorkedWith) {
+      const total = await prisma.invoice.aggregate({
+        where: {
+          clientId: client.id,
+        },
+        _sum: {
+          netAmount: true,
+          remainingInvoiceGrossAmount: true,
+        },
+      });
+
+      const monthlyServicesTotal = await prisma.invoiceItem.aggregate({
+        where: {
+          service: {
+            repeatedEvery: 1,
+          },
+          invoice: {
+            clientId: client.id,
+          },
+        },
+        _sum: {
+          price: true,
+        },
+      });
+      const yearlyServicesTotal = await prisma.invoiceItem.aggregate({
+        where: {
+          service: {
+            repeatedEvery: 12,
+          },
+          invoice: {
+            clientId: client.id,
+          },
+        },
+        _sum: {
+          price: true,
+        },
+      });
+
+      client.total = {
+        ...total._sum,
+        yearlServicesTotal: yearlyServicesTotal._sum.price ?? 0,
+        monthlyServicesTotal: monthlyServicesTotal._sum.price ?? 0,
+      };
+    }
+  }
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
+    employees,
+  });
 };

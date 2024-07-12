@@ -67,8 +67,6 @@ export const getAppointments = async (req, res, next) => {
   const { page, limit } = getPageAndLimitFromQurey(req.query);
   const { startDate, endDate } = req.query;
 
-  console.log({ startDate, endDate });
-
   const data = await getPagination(
     'appointment',
     page,

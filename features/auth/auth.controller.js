@@ -212,6 +212,66 @@ export const getUsers = async (req, res, next) => {
   });
 };
 
+export const getMyContacts = async (req, res, next) => {
+  let filter = {};
+
+  const contacts = await prisma.account.findMany({
+    where: {
+      OR: [
+        {
+          receivedEmails: {
+            some: {
+              senderId: req.account?.id,
+            },
+          },
+        },
+        {
+          sendedEmails: {
+            some: {
+              receivers: {
+                some: {
+                  id: req.account.id,
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+    select: {
+      ...accountDataToSelect,
+      admin: true,
+      employee: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+      client: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
+    contacts: contacts.map((c) => ({
+      ...c,
+      name:
+        c.admin?.name ??
+        c.client?.name ??
+        `${c.employee?.firstName} ${c.employee?.lastName}`,
+      admin: undefined,
+      employee: undefined,
+      client: undefined,
+    })),
+  });
+};
+
 // TODO optimize
 export const postForgetPassword = async (req, res) => {
   const { email } = req.body;

@@ -400,11 +400,6 @@ export const putClientServices = async (req, res, next) => {
   });
 };
 
-export const getClientsCalculator = async (req, res, next) => {
-  // TODO
-  // check: https://www.figma.com/design/98C7dz8DKuIlhkJGXRfTnN/standared-map?node-id=1-1515&t=7H7DICNeuAht6PUt-4
-};
-
 export const getClientOrdersDetails = async (req, res, next) => {
   // TODO
   // check https://www.figma.com/design/98C7dz8DKuIlhkJGXRfTnN/standared-map?node-id=119-3370&t=7H7DICNeuAht6PUt-4

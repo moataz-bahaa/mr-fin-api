@@ -18,6 +18,8 @@ model Service {
   emails  Email[]
   files   File[]
 
+  invoiceItems InvoiceItem[]
+
   @@map("services")
 }
 
@@ -228,14 +230,13 @@ model Client {
   taxOfficeDesignation String?
   taxOfficeComment     String?
 
-  branchId Int
-  teamId   Int?
+  team   Team? @relation(fields: [teamId], references: [id])
+  teamId Int?
 
-  branch Branch @relation(fields: [branchId], references: [id])
+  branch   Branch @relation(fields: [branchId], references: [id])
+  branchId Int
 
   employeeDailyReports EmployeeDailyReport[]
-
-  team Team? @relation(fields: [teamId], references: [id])
 
   tasks Task[]
 
@@ -300,7 +301,7 @@ model Email {
   subject   String
   content   String?  @db.Text
   createdAt DateTime @default(now())
-  isReaded    Boolean  @default(false)
+  isReaded  Boolean  @default(false)
 
   sender   Account @relation("user_sended_emails", fields: [senderId], references: [id])
   senderId Int
@@ -388,15 +389,22 @@ model ContactUsMessages {
 }
 
 model Invoice {
-  id              Int    @id @default(autoincrement())
-  calculationType String
+  id                          Int   @id @default(autoincrement())
+  netAmount                   Float // net
+  tax                         Float // tax / VAT rate default 19%
+  vatAmount                   Float // net * tax
+  totalAmount                 Float // net + vatAmount
+  paid                        Float @default(0)
+  remainingInvoiceAmount      Float // netAmount - paid
+  paidVat                     Float @default(0)
+  remainingVat                Float // vat - paidVAT
+  remainingInvoiceGrossAmount Float // remainingInvoiceAmount + remainingVAT
 
-  totalAmount      Float // Summe (Total)
-  vatAmount        Float // Umsatzsteuer (VAT Amount)
-  totalGrossAmount Float // Summe (brutto) (Total including VAT)
-  remainingAmount  Float // Verbleibender Rechnungsbetrag (Remaining Invoice Amount)
-  remainingVat     Float // Verbleibende Umsatzsteuer (Remaining VAT)
-  paymentDueDate   DateTime // Zahlung erbeten bis spätestens (Payment due by)
+  calculationType String?
+  department      String?
+  regulations     String?
+
+  paymentDueDate DateTime // Zahlung erbeten bis spätestens (Payment due by)
 
   createdAt DateTime      @default(now())
   items     InvoiceItem[]
@@ -408,12 +416,14 @@ model Invoice {
 }
 
 model InvoiceItem {
-  id              Int    @id @default(autoincrement())
-  issue           String // Angelegenheit (Issue/Subject)
-  periodTable     String // Zeitraum Tabelle (Period Table)
-  valueTimeNumber String // Wert/Zeit/Anzahl (Value/Time/Quantity)
-  rate            Float // Satz (Rate)
-  amount          Float // Betrag (Amount)
+  id Int @id @default(autoincrement())
+
+  service   Service @relation(fields: [serviceId], references: [id])
+  serviceId Int
+
+  period String?
+  price  Float
+  amount Int     @default(1)
 
   invoice   Invoice @relation(fields: [invoiceId], references: [id])
   invoiceId Int

@@ -10,14 +10,20 @@ import {
 import { toNumber } from '../../utils/index.js';
 
 export const getInvoices = async (req, res, next) => {
-  // TODO
   const clientId = toNumber(req.params.clientId);
-  const {} = req.query;
   const { page, limit } = getPageAndLimitFromQurey(req.query);
 
-  const filter = {};
+  const filter = { clientId };
 
-  const data = await getPagination('invoice', page, limit, filter);
+  const data = await getPagination('invoice', page, limit, filter, {
+    include: {
+      items: {
+        include: {
+          service: true,
+        },
+      },
+    },
+  });
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
@@ -26,15 +32,25 @@ export const getInvoices = async (req, res, next) => {
 };
 
 export const postInvoice = async (req, res, next) => {
-  // TODO
-  // check https://www.figma.com/design/98C7dz8DKuIlhkJGXRfTnN/standared-map?node-id=197-1696&t=7H7DICNeuAht6PUt-4
   const data = validateJoi(PostInvoiceSchema, req.body);
+
+  data.items = {
+    create: data.items,
+  };
 
   const invoice = await prisma.invoice.create({
     data,
+    include: {
+      items: {
+        include: {
+          service: true,
+        },
+      },
+    },
   });
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
+    invoice,
   });
 };

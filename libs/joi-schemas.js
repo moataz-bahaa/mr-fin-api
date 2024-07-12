@@ -217,5 +217,45 @@ export const PostAppointmentSchema = Joi.object({
   createMeeting: Joi.boolean().default(false),
 }).xor('clientId', 'employeeId');
 
-// TODO
-export const PostInvoiceSchema = Joi.object({});
+export const PostInvoiceSchema = Joi.object({
+  clientId: ForeignKeySchema.required(),
+  netAmount: Joi.number().required().description('Net amount of the invoice'),
+  tax: Joi.number().default(0.19).description('Tax rate (VAT rate)'),
+  vatAmount: Joi.number().description(
+    'Calculated VAT amount based on netAmount and tax'
+  ),
+  totalAmount: Joi.number().description('Total amount including VAT'),
+  paid: Joi.number()
+    .default(0)
+    .description('Amount already paid towards the invoice'),
+  remainingInvoiceAmount: Joi.number().description(
+    'Remaining amount to be paid (netAmount - paymentsMade)'
+  ),
+  paidVat: Joi.number().default(0).description('Amount of VAT already paid'),
+  remainingVat: Joi.number().description(
+    'Remaining VAT to be paid (vatAmount - paidVat)'
+  ),
+  remainingInvoiceGrossAmount: Joi.number().description(
+    'Gross amount remaining to be paid (remainingInvoiceAmount + remainingVat)'
+  ),
+  calculationType: Joi.string().optional(),
+  department: Joi.string().optional(),
+  regulations: Joi.string().optional(),
+  paymentDueDate: Joi.date().optional(),
+  items: Joi.array().items(
+    Joi.object({
+      serviceId: ForeignKeySchema,
+      period: Joi.string(),
+      price: Joi.number(),
+      amount: Joi.number().optional().default(1),
+    })
+  ),
+});
+
+export const TaskSchema = Joi.object({
+  months: Joi.array().items(Joi.string()).optional().default([]),
+  serviceId: ForeignKeySchema,
+  isCompleted: Joi.boolean().optional().default(false),
+  clientId: ForeignKeySchema,
+  employees: Joi.array().items(ForeignKeySchema),
+});

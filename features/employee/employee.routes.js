@@ -9,6 +9,7 @@ import {
   getEmployeeById,
   getEmployeeRoles,
   getEmployees,
+  getEmployeesProductavity,
   patchEmployee,
   postEmployee,
 } from './employee.controller.js';
@@ -18,6 +19,8 @@ const router = Router();
 router.get('/roles', getEmployeeRoles);
 
 router.get('/branch/:branchId', getEmployees);
+
+router.get('/productivity/:branchId', getEmployeesProductavity);
 
 router.post(
   '/',
