@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { STATUS } from '../../libs/constants.js';
+import { accountDataToSelect, STATUS } from '../../libs/constants.js';
 import { PostInvoiceSchema } from '../../libs/joi-schemas.js';
 import prisma from '../../prisma/client.js';
 import {
@@ -20,6 +20,13 @@ export const getInvoices = async (req, res, next) => {
       items: {
         include: {
           service: true,
+        },
+      },
+      client: {
+        include: {
+          account: {
+            select: accountDataToSelect,
+          },
         },
       },
     },
