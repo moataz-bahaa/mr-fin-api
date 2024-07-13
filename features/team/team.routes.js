@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { isAdminOrBranchManager } from '../../middlewares/auth.middleware.js';
 import {
   deleteTeam,
   getTeamById,
@@ -19,7 +20,7 @@ router.post('/', postTeam);
 
 router.patch('/:id', patchTeam);
 
-router.delete('/:id', deleteTeam);
+router.delete('/:id', isAdminOrBranchManager, deleteTeam);
 
 router.post('/remove-employees', postRemoveEmployeesFromTeam);
 

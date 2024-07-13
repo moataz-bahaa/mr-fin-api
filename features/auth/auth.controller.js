@@ -103,8 +103,6 @@ export const getUsers = async (req, res, next) => {
   const branchId = toNumber(req.params.branchId);
   const { search = '' } = req.query;
 
-  console.log({ branchId });
-
   const { page, limit } = getPageAndLimitFromQurey(req.query);
 
   const filter = {
@@ -157,6 +155,15 @@ export const getUsers = async (req, res, next) => {
       },
     ],
   };
+
+  if (req.account.client) {
+    filter.AND.push({
+      // @ts-ignore
+      employee: {
+        isNot: null,
+      },
+    });
+  }
 
   const data = await getPagination('account', page, limit, filter, {
     select: {
@@ -213,8 +220,6 @@ export const getUsers = async (req, res, next) => {
 };
 
 export const getMyContacts = async (req, res, next) => {
-  let filter = {};
-
   const contacts = await prisma.account.findMany({
     where: {
       OR: [

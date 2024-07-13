@@ -17,7 +17,7 @@ router.get('/me', isAuth, getMe);
 
 router.get('/my-contacts', isAuth, getMyContacts);
 
-router.get('/search/:branchId', getUsers);
+router.get('/search/:branchId', isAuth, getUsers);
 
 router.post('/change-password', postChangePassword);
 

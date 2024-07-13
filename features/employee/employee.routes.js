@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { upload } from '../../libs/upload.js';
 import {
+  isAdmin,
   isAdminOrBranchManager,
   isAuth,
 } from '../../middlewares/auth.middleware.js';
@@ -58,6 +59,6 @@ router.patch(
 
 router.get('/:id', getEmployeeById);
 
-router.delete('/:id', deleteEmployee);
+router.delete('/:id', isAdmin, deleteEmployee);
 
 export default router;

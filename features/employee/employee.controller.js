@@ -189,6 +189,7 @@ export const getEmployeeById = async (req, res, next) => {
 };
 
 export const postEmployee = async (req, res, next) => {
+  console.log(req.body);
   const {
     account: { email, password },
     branchId,
@@ -280,6 +281,7 @@ export const postEmployee = async (req, res, next) => {
 };
 
 export const patchEmployee = async (req, res, next) => {
+  console.log('patch employee', req.body);
   const id = toNumber(req.params.id);
   const {
     account: { email, password, status },
@@ -293,6 +295,9 @@ export const patchEmployee = async (req, res, next) => {
     where: {
       id,
     },
+    include: {
+      leadingTeam: true,
+    }
   });
 
   if (email) {
@@ -321,6 +326,30 @@ export const patchEmployee = async (req, res, next) => {
     profileImageUrl = getUrl(req, profileImage?.[0]?.path);
   }
 
+  if (branchId) {
+    data.branch = {
+      connect: {
+        id: branchId,
+      },
+    };
+
+    if (oldEmployee.teamId) {
+      data.team = {
+        disconnect: {
+          id: oldEmployee.teamId,
+        }
+      }
+    }
+
+    if (oldEmployee.leadingTeam) {
+      data.leadingTeam = {
+        disconnect: {
+          id: oldEmployee.leadingTeam.id
+        }
+      }
+    }
+  }
+
   if (teamId) {
     data.team = {
       connect: {
@@ -333,13 +362,6 @@ export const patchEmployee = async (req, res, next) => {
     data.role = {
       connect: {
         id: roleId,
-      },
-    };
-  }
-  if (branchId) {
-    data.branch = {
-      connect: {
-        id: branchId,
       },
     };
   }

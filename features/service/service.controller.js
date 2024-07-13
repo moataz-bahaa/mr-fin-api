@@ -30,6 +30,8 @@ export const patchService = async (req, res, next) => {
 
   const data = req.body;
 
+  console.log({ data });
+
   // enuser that service exits
   await prisma.service.findUniqueOrThrow({
     where: {

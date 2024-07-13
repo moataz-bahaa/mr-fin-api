@@ -14,6 +14,8 @@ export const postAppointment = async (req, res, next) => {
     req.body
   );
 
+  console.log(req.body);
+
   let url = null;
   if (createMeeting) {
     // TODO create zoom meeting

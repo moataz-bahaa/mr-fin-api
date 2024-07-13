@@ -4,20 +4,20 @@ export const GenderSchema = Joi.string().valid('male', 'female').lowercase();
 
 export const BranchSchema = Joi.object({
   name: Joi.string().required(),
-  location: Joi.string(),
+  location: Joi.string().allow(''),
 });
 
 export const ForeignKeySchema = Joi.number().integer().positive();
 
 const OptionalAccountSchema = Joi.object({
-  email: Joi.string().optional(),
-  password: Joi.string().optional(),
+  email: Joi.string().optional().allow(''),
+  password: Joi.string().optional().allow(''),
   status: Joi.string().valid('active', 'archive').optional(),
 });
 
 export const AdminSchema = Joi.object({
   name: Joi.string().required(),
-  profileImageUrl: Joi.string(),
+  profileImageUrl: Joi.string().allow(''),
 });
 
 export const AccountSchema = Joi.object({
@@ -27,52 +27,52 @@ export const AccountSchema = Joi.object({
 });
 export const EmployeeSchema = Joi.object({
   account: AccountSchema.required(),
-  personalNumber: Joi.string(),
-  salutation: Joi.string(),
-  title: Joi.string(),
-  firstName: Joi.string(),
-  lastName: Joi.string(),
-  street: Joi.string(),
-  houseNumber: Joi.string(),
-  city: Joi.string(),
-  postalCode: Joi.string(),
-  country: Joi.string(),
-  phone: Joi.string(),
+  personalNumber: Joi.string().allow(''),
+  salutation: Joi.string().allow(''),
+  title: Joi.string().allow(''),
+  firstName: Joi.string().allow(''),
+  lastName: Joi.string().allow(''),
+  street: Joi.string().allow(''),
+  houseNumber: Joi.string().allow(''),
+  city: Joi.string().allow(''),
+  postalCode: Joi.string().allow(''),
+  country: Joi.string().allow(''),
+  phone: Joi.string().allow(''),
   gender: GenderSchema,
-  birthDate: Joi.date(),
-  nationality: Joi.string(),
-  username: Joi.string(),
-  maritalStatus: Joi.string(),
+  birthDate: Joi.date().allow(''),
+  nationality: Joi.string().allow(''),
+  username: Joi.string().allow(''),
+  maritalStatus: Joi.string().allow(''),
 
-  entryDate: Joi.date(),
-  groupOfPeople: Joi.string(),
-  jobTitle: Joi.string(),
-  jobCode: Joi.string(),
-  graduation: Joi.string(),
-  vocationalTraining: Joi.string(),
-  AUG: Joi.string(),
-  contractForm: Joi.string(),
-  employmentStatus: Joi.string(),
-  multipleEmployment: Joi.string(),
+  entryDate: Joi.date().allow(''),
+  groupOfPeople: Joi.string().allow(''),
+  jobTitle: Joi.string().allow(''),
+  jobCode: Joi.string().allow(''),
+  graduation: Joi.string().allow(''),
+  vocationalTraining: Joi.string().allow(''),
+  AUG: Joi.string().allow(''),
+  contractForm: Joi.string().allow(''),
+  employmentStatus: Joi.string().allow(''),
+  multipleEmployment: Joi.string().allow(''),
   weeklyWorkHours: ForeignKeySchema,
   dailyWorkHours: ForeignKeySchema,
 
-  typeOfEmployment: Joi.string(),
-  taxIdentificationNumber: Joi.string(),
+  typeOfEmployment: Joi.string().allow(''),
+  taxIdentificationNumber: Joi.string().allow(''),
 
-  healthOrLongTermInsurance: Joi.string(),
-  healthInsurance: Joi.string(),
-  parenthoodInPrimary: Joi.string(),
-  pensionInsurance: Joi.string(),
-  unemploymentInsurance: Joi.string(),
-  socialSecurityNumber: Joi.string(),
+  healthOrLongTermInsurance: Joi.string().allow(''),
+  healthInsurance: Joi.string().allow(''),
+  parenthoodInPrimary: Joi.string().allow(''),
+  pensionInsurance: Joi.string().allow(''),
+  unemploymentInsurance: Joi.string().allow(''),
+  socialSecurityNumber: Joi.string().allow(''),
 
-  typeOfPayment: Joi.string(),
+  typeOfPayment: Joi.string().allow(''),
   hourWage: Joi.number().positive(),
-  IBAN: Joi.string(),
-  BIC: Joi.string(),
+  IBAN: Joi.string().allow(''),
+  BIC: Joi.string().allow(''),
 
-  extraInfo: Joi.string(),
+  extraInfo: Joi.string().allow(''),
   approvalForInclusionInPayroll: Joi.boolean().default(false),
   roleId: ForeignKeySchema.required(),
   branchId: ForeignKeySchema.required(),
@@ -80,7 +80,7 @@ export const EmployeeSchema = Joi.object({
 });
 
 export const TeamSchema = Joi.object({
-  name: Joi.string(),
+  name: Joi.string().allow(''),
   teamLeaderId: ForeignKeySchema,
   branchId: ForeignKeySchema,
   employees: Joi.array().items(ForeignKeySchema),
@@ -88,53 +88,53 @@ export const TeamSchema = Joi.object({
 
 export const ClientSchema = Joi.object({
   account: AccountSchema.required(),
-  salutation: Joi.string().optional(),
-  title: Joi.string().optional(),
-  username: Joi.string().optional(),
-  name: Joi.string().optional(),
-  companyName: Joi.string().optional(),
-  abbreviation: Joi.string().optional(),
-  comment: Joi.string().optional(),
+  salutation: Joi.string().optional().allow(''),
+  title: Joi.string().optional().allow(''),
+  username: Joi.string().optional().allow(''),
+  name: Joi.string().optional().allow(''),
+  companyName: Joi.string().optional().allow(''),
+  abbreviation: Joi.string().optional().allow(''),
+  comment: Joi.string().optional().allow(''),
 
-  address1: Joi.string().optional(),
-  address2: Joi.string().optional(),
-  zipCodeAndCity: Joi.string().optional(),
-  countryCode: Joi.string().optional(),
-  addressComment: Joi.string().optional(),
-  phoneLandline: Joi.string().optional(),
-  phoneMobile: Joi.string().optional(),
-  fax: Joi.string().optional(),
+  address1: Joi.string().optional().allow(''),
+  address2: Joi.string().optional().allow(''),
+  zipCodeAndCity: Joi.string().optional().allow(''),
+  countryCode: Joi.string().optional().allow(''),
+  addressComment: Joi.string().optional().allow(''),
+  phoneLandline: Joi.string().optional().allow(''),
+  phoneMobile: Joi.string().optional().allow(''),
+  fax: Joi.string().optional().allow(''),
 
-  gender: Joi.string().optional(),
-  maidenName: Joi.string().optional(),
+  gender: Joi.string().optional().allow(''),
+  maidenName: Joi.string().optional().allow(''),
   dateOfBirth: Joi.date().optional(),
-  placeOfBirth: Joi.string().optional(),
-  placeOfDeath: Joi.string().optional(),
+  placeOfBirth: Joi.string().optional().allow(''),
+  placeOfDeath: Joi.string().optional().allow(''),
   dateOfDeath: Joi.date().optional(),
-  religion: Joi.string().optional(),
-  federalState: Joi.string().optional(),
-  maritalStatus: Joi.string().optional(),
+  religion: Joi.string().optional().allow(''),
+  federalState: Joi.string().optional().allow(''),
+  maritalStatus: Joi.string().optional().allow(''),
   since: Joi.date().optional(),
-  maritalPropertyRegime: Joi.string().optional(),
+  maritalPropertyRegime: Joi.string().optional().allow(''),
   unlimitedTaxLiability: Joi.boolean().optional(),
-  taxation: Joi.string().optional(),
-  taxIdentificationNumber: Joi.string().optional(),
-  profession: Joi.string().optional(),
-  employer: Joi.string().optional(),
-  socialSecurityNumber: Joi.string().optional(),
-  socialSecurityOrganization: Joi.string().optional(),
-  IBAN: Joi.string().optional(),
-  bankCustomerNumber: Joi.string().optional(),
-  bankCode: Joi.string().optional(),
-  taxNumber: Joi.string().optional(),
-  elsterTaxNumber: Joi.string().optional(),
-  deliveryAuthority: Joi.string().optional(),
+  taxation: Joi.string().optional().allow(''),
+  taxIdentificationNumber: Joi.string().optional().allow(''),
+  profession: Joi.string().optional().allow(''),
+  employer: Joi.string().optional().allow(''),
+  socialSecurityNumber: Joi.string().optional().allow(''),
+  socialSecurityOrganization: Joi.string().optional().allow(''),
+  IBAN: Joi.string().optional().allow(''),
+  bankCustomerNumber: Joi.string().optional().allow(''),
+  bankCode: Joi.string().optional().allow(''),
+  taxNumber: Joi.string().optional().allow(''),
+  elsterTaxNumber: Joi.string().optional().allow(''),
+  deliveryAuthority: Joi.string().optional().allow(''),
   validFrom: Joi.date().optional(),
   validUntil: Joi.date().optional(),
-  taxNumberComment: Joi.string().optional(),
-  officialNumberName: Joi.string().optional(),
-  taxOfficeDesignation: Joi.string().optional(),
-  taxOfficeComment: Joi.string().optional(),
+  taxNumberComment: Joi.string().optional().allow(''),
+  officialNumberName: Joi.string().optional().allow(''),
+  taxOfficeDesignation: Joi.string().optional().allow(''),
+  taxOfficeComment: Joi.string().optional().allow(''),
   filesServiceId: ForeignKeySchema,
 
   branchId: ForeignKeySchema.required(),
@@ -144,9 +144,9 @@ export const ClientSchema = Joi.object({
 export const UpdateClientSchema = ClientSchema.keys({
   account: OptionalAccountSchema.optional().default({}),
   branchId: ForeignKeySchema,
-  name: Joi.string(),
-  postleitzahlOrt: Joi.string(),
-  benutzername: Joi.string(),
+  name: Joi.string().allow(''),
+  postleitzahlOrt: Joi.string().allow(''),
+  benutzername: Joi.string().allow(''),
 });
 
 export const UpdateEmployeeSchema = EmployeeSchema.keys({
@@ -156,14 +156,14 @@ export const UpdateEmployeeSchema = EmployeeSchema.keys({
 });
 
 export const UpdateTeamSchema = Joi.object({
-  name: Joi.string(),
+  name: Joi.string().allow(''),
   teamLeaderId: ForeignKeySchema.allow(null),
   branchId: ForeignKeySchema,
 });
 
 export const UpdateBranchSchema = Joi.object({
-  name: Joi.string(),
-  location: Joi.string(),
+  name: Joi.string().allow(''),
+  location: Joi.string().allow(''),
   managerId: ForeignKeySchema,
 });
 
@@ -195,16 +195,16 @@ export const DailyReportSchema = Joi.object({
 });
 
 export const PostEmailSchema = Joi.object({
-  subject: Joi.string(),
-  content: Joi.string(),
+  subject: Joi.string().allow(''),
+  content: Joi.string().allow(''),
   serviceId: ForeignKeySchema.optional(),
   parentEmailId: ForeignKeySchema.optional(),
   receivers: Joi.array().items(ForeignKeySchema).default([]),
 });
 
 export const PutReviewSchema = Joi.object({
-  title: Joi.string().optional(),
-  content: Joi.string().optional(),
+  title: Joi.string().optional().allow(''),
+  content: Joi.string().optional().allow(''),
   rate: Joi.number().positive().min(1).max(5).required(),
 });
 
@@ -238,14 +238,14 @@ export const PostInvoiceSchema = Joi.object({
   remainingInvoiceGrossAmount: Joi.number().description(
     'Gross amount remaining to be paid (remainingInvoiceAmount + remainingVat)'
   ),
-  calculationType: Joi.string().optional(),
-  department: Joi.string().optional(),
-  regulations: Joi.string().optional(),
+  calculationType: Joi.string().optional().allow('').allow(''),
+  department: Joi.string().optional().allow('').allow(''),
+  regulations: Joi.string().optional().allow('').allow(''),
   paymentDueDate: Joi.date().optional(),
   items: Joi.array().items(
     Joi.object({
       serviceId: ForeignKeySchema,
-      period: Joi.string(),
+      period: Joi.string().allow(''),
       price: Joi.number(),
       amount: Joi.number().optional().default(1),
     })

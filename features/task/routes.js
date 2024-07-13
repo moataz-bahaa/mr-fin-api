@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { isAdminOrEmploee, isClient } from '../../middlewares/auth.middleware.js';
+import { isAdminOrBranchManager, isAdminOrEmploee, isClient } from '../../middlewares/auth.middleware.js';
 import {
   deleteTask,
   getChecklist,
@@ -27,6 +27,6 @@ router.patch('/', patchTasks);
 
 router.post('/', postTask);
 
-router.delete('/:id', deleteTask);
+router.delete('/:id', isAdminOrBranchManager, deleteTask);
 
 export default router;

@@ -77,6 +77,7 @@ export const postEmail = async (req, res, next) => {
 };
 
 export const getEmails = async (req, res, next) => {
+  console.log('get emails', req.query);
   // TODO review and order desc by date
   const {
     type,
