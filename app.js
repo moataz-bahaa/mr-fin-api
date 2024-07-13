@@ -24,9 +24,9 @@ import invoiceRoutes from './features/invoice/invoice.routes.js';
 import meetingRoutes from './features/meeting/routes.js';
 import reviewRoutes from './features/review/routes.js';
 import serviceRoutes from './features/service/service.routes.js';
+import taskRoutes from './features/task/routes.js';
 import teamRoutes from './features/team/team.routes.js';
 import { APIKeyGuard } from './middlewares/api-key.middleware.js';
-import taskRoutes from './features/task/routes.js';
 
 const app = express();
 
@@ -74,11 +74,11 @@ io.on('connection', (socket) => {
   console.log('connected', socket.id);
   socket.on('setup', (userId) => {
     console.log({ userId });
-    console.log('Setup', userId);
-    socket.join(userId.toString());
-    socket.emit('connected');
-    // TODO
-    // setUserIsOnline(userId, true);
+    if (userId) {
+      console.log('Setup', userId);
+      socket.join(userId.toString());
+      socket.emit('connected');
+    }
   });
 
   socket.on('disconnect', () => {

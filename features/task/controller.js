@@ -303,7 +303,7 @@ export const getTeamsTasks = async (req, res, next) => {
 
   let filter = {};
 
-  if (!req.account.isAdming && !req.account.isBranchManager) {
+  if (!req.account.isAdmin && !req.account.isBranchManager) {
     filter = {
       OR: [
         {
@@ -333,6 +333,8 @@ export const getTeamsTasks = async (req, res, next) => {
       },
     },
   });
+
+  console.log('teams', teams.length);
 
   for (const team of teams) {
     // @ts-ignore
@@ -381,7 +383,7 @@ export const postTask = async (req, res, next) => {
   const data = validateJoi(TaskSchema, req.body);
 
   data.employees = {
-    connect: data.employees.map((id) => ({ id })),
+    connect: data.employees?.map((id) => ({ id })),
   };
 
   const task = await prisma.task.create({
