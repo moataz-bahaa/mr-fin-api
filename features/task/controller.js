@@ -334,8 +334,6 @@ export const getTeamsTasks = async (req, res, next) => {
     },
   });
 
-  console.log('teams', teams.length);
-
   for (const team of teams) {
     // @ts-ignore
     team.tasks = await prisma.task.findMany({
@@ -367,6 +365,7 @@ export const getTeamsTasks = async (req, res, next) => {
         employees: {
           select: employeeDataToSelect,
         },
+        service: true,
       },
       take: limit,
     });
