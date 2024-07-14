@@ -12,6 +12,7 @@ import {
   getClientOrdersDetails,
   getClients,
   getClientServices,
+  getClientSummry,
   patchClient,
   postClient,
   putClientServices,
@@ -24,6 +25,7 @@ router.get('/branch/:branchId', getClients);
 router.get('/:id', getClientById);
 router.get('/:id/services', getClientServices);
 router.get('/:id/orders', getClientOrdersDetails);
+router.get('/:id/summry', getClientSummry);
 
 router.post(
   '/',

@@ -1,12 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
-import jwt from 'jsonwebtoken';
 import { comparePassword, hashPassword } from '../../libs/bcrypt.js';
 import { accountDataToSelect, STATUS } from '../../libs/constants.js';
 import { AccountSchema } from '../../libs/joi-schemas.js';
 import { generateToken } from '../../libs/jwt-utils.js';
 import prisma from '../../prisma/client.js';
-import { sendEmail } from '../../utils/email.js';
-import { BadRequestError, NotFoundError } from '../../utils/errors.js';
+import { BadRequestError } from '../../utils/errors.js';
 import {
   getPageAndLimitFromQurey,
   getPagination,
@@ -275,38 +273,4 @@ export const getMyContacts = async (req, res, next) => {
       client: undefined,
     })),
   });
-};
-
-// TODO optimize
-export const postForgetPassword = async (req, res) => {
-  const { email } = req.body;
-
-  const user = await prisma.account.findUnique({
-    where: { email },
-  });
-
-  if (!user) {
-    throw new NotFoundError('user not found');
-  }
-
-  const resetToken = jwt.sign(
-    { userId: user.id },
-    process.env.JWT_PRIVATE_KEY,
-    {
-      expiresIn: '1h',
-    }
-  );
-
-  const mailOptions = {
-    from: 'your-email@gmail.com',
-    to: user.email,
-    subject: 'Password Reset',
-    text: `Click the following link to reset your password: ${resetToken}`,
-  };
-
-  await sendEmail(mailOptions);
-
-  res
-    .status(StatusCodes.OK)
-    .json({ message: 'Password reset instructions sent to your email' });
 };

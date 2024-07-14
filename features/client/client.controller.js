@@ -459,3 +459,26 @@ export const getClientServices = async (req, res, next) => {
     services: client.services,
   });
 };
+
+export const getClientSummry = async (req, res, next) => {
+  // TODO client oders summry
+  
+  /**
+   * part 2 (right side)
+   * get tota of
+   * 1. monthly services
+   * 2. annaul services
+   * 3. one-off services
+   * 
+   * tota of 1 + 2 + 3
+   */
+
+
+  /**
+   * part 2 left side
+   * 
+   * check
+   * https://www.figma.com/design/98C7dz8DKuIlhkJGXRfTnN/standared-map?node-id=93-1239&t=nFS7eOyQfuW6Upu1-4
+   */
+  
+};

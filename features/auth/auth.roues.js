@@ -5,7 +5,6 @@ import {
   getMyContacts,
   getUsers,
   postChangePassword,
-  postForgetPassword,
   postLogin,
 } from './auth.controller.js';
 
@@ -20,7 +19,5 @@ router.get('/my-contacts', isAuth, getMyContacts);
 router.get('/search/:branchId', isAuth, getUsers);
 
 router.post('/change-password', postChangePassword);
-
-router.post('/forget-password', postForgetPassword);
 
 export default router;

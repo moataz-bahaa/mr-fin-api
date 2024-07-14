@@ -27,6 +27,7 @@ import serviceRoutes from './features/service/service.routes.js';
 import taskRoutes from './features/task/routes.js';
 import teamRoutes from './features/team/team.routes.js';
 import { APIKeyGuard } from './middlewares/api-key.middleware.js';
+import prisma from './prisma/client.js';
 
 const app = express();
 
@@ -71,20 +72,42 @@ export const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
+  let roomId;
   socket.on('setup', (userId) => {
     if (userId) {
+      roomId = userId;
       socket.join(userId.toString());
       socket.emit('connected');
+
+      prisma.account
+        .update({
+          where: {
+            id: roomId,
+          },
+          data: {
+            isOnline: true,
+          },
+        })
+        .then(() => {})
+        .catch(() => {});
     }
   });
 
   socket.on('disconnect', () => {
     console.log('Disconnected');
-    // Remove the user from any rooms they are in
-    Object.keys(socket.rooms).forEach((room) => {
-      socket.leave(room);
-
-      // TODO: set user isOnline = false
-    });
+    if (roomId) {
+      prisma.account
+        .update({
+          where: {
+            id: roomId,
+          },
+          data: {
+            isOnline: false,
+            logoutAt: new Date().toISOString()
+          },
+        })
+        .then(() => {})
+        .catch(() => {});
+    }
   });
 });

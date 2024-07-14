@@ -64,7 +64,7 @@ export const postEmail = async (req, res, next) => {
   });
 
   // send email remeinder
-  // TODO enable or not ?
+  // TODO sending emails enable or not ?
   // email.receivers.forEach((user) => {
   //   sendEmail({
   //     from: '',
