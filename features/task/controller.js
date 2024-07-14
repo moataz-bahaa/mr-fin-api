@@ -19,10 +19,40 @@ import { MESSAGES } from '../../utils/messages.js';
 export const getChecklist = async (req, res, next) => {
   const branchId = toNumber(req.params.branchId);
   const { page, limit } = getPageAndLimitFromQurey(req.query);
+  const { search } = req.query;
 
   const filter = {
-    branchId,
+    AND: [
+      {
+        branchId,
+      },
+    ],
   };
+
+  if (search) {
+    // @ts-ignore
+    filter.AND.push({
+      OR: [
+        {
+          firstName: {
+            contains: search,
+          },
+        },
+        {
+          lastName: {
+            contains: search,
+          },
+        },
+        {
+          account: {
+            email: {
+              contains: search,
+            },
+          },
+        },
+      ],
+    });
+  }
 
   if (!req.account.isAdmin && !req.account.isBranchManager) {
     if (req.account.isTeamLeader) {
@@ -33,16 +63,19 @@ export const getChecklist = async (req, res, next) => {
       });
       if (team) {
         filter.teamId = team.id;
-        filter.OR = [
-          {
-            teamId: team.id,
-          },
-          {
-            leadingTeam: {
-              id: team.id,
+        // @ts-ignore
+        filter.AND.push({
+          OR: [
+            {
+              teamId: team.id,
             },
-          },
-        ];
+            {
+              leadingTeam: {
+                id: team.id,
+              },
+            },
+          ],
+        });
       } else {
         filter.id = req.account.id;
       }

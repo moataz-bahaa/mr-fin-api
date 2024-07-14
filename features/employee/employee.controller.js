@@ -448,35 +448,55 @@ export const deleteEmployee = async (req, res, next) => {
 export const getEmployeesProductavity = async (req, res, next) => {
   const branchId = toNumber(req.params.branchId);
   const { page, limit } = getPageAndLimitFromQurey(req.query);
-  const data = await getPagination(
-    'employee',
-    page,
-    limit,
-    {
-      branchId,
-    },
-    {
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        salutation: true,
-        account: {
-          select: {
-            ...accountDataToSelect,
-          },
-        },
-        tasks: {
-          select: {
-            client: {
-              select: clientDataToSelect,
-            },
-          },
-          distinct: ['clientId'],
+  const { search } = req.query;
+
+  const filter = {
+    branchId,
+  };
+
+  if (search) {
+    filter.OR = [
+      {
+        firstName: {
+          contains: search,
         },
       },
-    }
-  );
+      {
+        lastName: {
+          contains: search,
+        },
+      },
+      {
+        account: {
+          email: {
+            contains: search
+          }
+        }
+      }
+    ];
+  }
+
+  const data = await getPagination('employee', page, limit, filter, {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      salutation: true,
+      account: {
+        select: {
+          ...accountDataToSelect,
+        },
+      },
+      tasks: {
+        select: {
+          client: {
+            select: clientDataToSelect,
+          },
+        },
+        distinct: ['clientId'],
+      },
+    },
+  });
   // @ts-ignore
   data.employees.forEach((emp) => {
     // @ts-ignore
