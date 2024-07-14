@@ -103,6 +103,7 @@ export const getAppointments = async (req, res, next) => {
     },
     {
       include: {
+        meeting: true,
         client: {
           select: {
             id: true,
