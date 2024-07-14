@@ -93,6 +93,12 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('start-meeting', (meeting) => {
+    meeting?.accounts.forEach((account) => {
+      socket.to(account.id.toString()).emit('start-meeting', meeting);
+    });
+  });
+
   socket.on('disconnect', () => {
     console.log('Disconnected');
     if (roomId) {
@@ -103,7 +109,7 @@ io.on('connection', (socket) => {
           },
           data: {
             isOnline: false,
-            logoutAt: new Date().toISOString()
+            logoutAt: new Date().toISOString(),
           },
         })
         .then(() => {})

@@ -15,8 +15,6 @@ export const postAppointment = async (req, res, next) => {
     req.body
   );
 
-  console.log(req.body);
-
   let url = null;
   let zoomObj = {}
   if (createMeeting) {
@@ -59,7 +57,13 @@ export const postAppointment = async (req, res, next) => {
       ...data,
     },
     include: {
-      meeting: true,
+      meeting: {
+        include: {
+          accounts: {
+            select: accountDataToSelect
+          }
+        }
+      },
     },
   });
 

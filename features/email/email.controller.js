@@ -210,7 +210,7 @@ export const getEmails = async (req, res, next) => {
         // @ts-ignore
         filter.AND.push({
           sender: {
-            client: {
+            employee: {
               isNot: null,
             },
           },
