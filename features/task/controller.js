@@ -18,6 +18,7 @@ import { MESSAGES } from '../../utils/messages.js';
 
 export const getChecklist = async (req, res, next) => {
   const branchId = toNumber(req.params.branchId);
+  const { page, limit } = getPageAndLimitFromQurey(req.query);
 
   const filter = {
     branchId,
@@ -50,8 +51,7 @@ export const getChecklist = async (req, res, next) => {
     }
   }
 
-  const employees = await prisma.employee.findMany({
-    where: filter,
+  const data = await getPagination('employee', page, limit, filter, {
     select: {
       id: true,
       firstName: true,
@@ -83,7 +83,7 @@ export const getChecklist = async (req, res, next) => {
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
-    employees,
+    ...data,
   });
 };
 

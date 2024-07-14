@@ -477,7 +477,6 @@ export const getEmployeesProductavity = async (req, res, next) => {
       },
     }
   );
-  console.log(data);
   // @ts-ignore
   data.employees.forEach((emp) => {
     // @ts-ignore
