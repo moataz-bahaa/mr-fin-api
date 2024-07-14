@@ -176,8 +176,8 @@ export const getTasks = async (req, res, next) => {
     };
   }
 
-  if (status) {
-    filter.isCompleted = status === 'completed';
+  if (status === 'completed') {
+    filter.isCompleted = true;
   }
 
   if (clientId) {
@@ -205,6 +205,8 @@ export const getTasks = async (req, res, next) => {
       },
     },
   });
+
+  console.log(JSON.stringify(filter), data);
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
@@ -372,24 +374,29 @@ export const getTeamsTasks = async (req, res, next) => {
     team.tasks = await prisma.task.findMany({
       where: {
         isCompleted: status === 'completed',
-        OR: [
-          {
-            employees: {
-              some: {
-                id: {
-                  in: team.employees.map((e) => e.id),
-                },
-              },
-            },
+        employees: {
+          some: {
+            teamId: team.id,
           },
-          {
-            employees: {
-              some: {
-                id: team.teamLeaderId,
-              },
-            },
-          },
-        ],
+        },
+        // OR: [
+        //   {
+        //     employees: {
+        //       some: {
+        //         id: {
+        //           in: team.employees.map((e) => e.id),
+        //         },
+        //       },
+        //     },
+        //   },
+        //   {
+        //     employees: {
+        //       some: {
+        //         id: team.teamLeaderId,
+        //       },
+        //     },
+        //   },
+        // ],
       },
       include: {
         client: {

@@ -46,7 +46,6 @@ router.post(
 
 router.patch(
   '/:id',
-  isAdminOrBranchManagerOrClient,
   upload.fields([
     {
       name: 'profileImage',

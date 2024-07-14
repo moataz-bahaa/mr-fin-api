@@ -5,19 +5,6 @@ import prisma from './client.js';
 (async () => {
   try {
     const adminAccountId = await getAdminAccountId();
-    if (!adminAccountId) {
-      await prisma.admin.create({
-        data: {
-          name: 'Admin Test',
-          account: {
-            create: {
-              email: 'admin',
-              hashedPassword: await hashPassword('328221'),
-            },
-          },
-        },
-      });
-    }
 
     await prisma.branch.createMany({
       data: [
@@ -36,6 +23,19 @@ import prisma from './client.js';
       ],
     });
 
+    if (!adminAccountId) {
+      await prisma.admin.create({
+        data: {
+          name: 'Admin Test',
+          account: {
+            create: {
+              email: 'admin',
+              hashedPassword: await hashPassword('328221'),
+            },
+          },
+        },
+      });
+    }
     await prisma.employeeRole.createMany({
       data: [
         {
