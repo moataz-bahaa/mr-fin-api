@@ -297,7 +297,7 @@ export const patchEmployee = async (req, res, next) => {
     },
     include: {
       leadingTeam: true,
-    }
+    },
   });
 
   if (email) {
@@ -337,16 +337,16 @@ export const patchEmployee = async (req, res, next) => {
       data.team = {
         disconnect: {
           id: oldEmployee.teamId,
-        }
-      }
+        },
+      };
     }
 
     if (oldEmployee.leadingTeam) {
       data.leadingTeam = {
         disconnect: {
-          id: oldEmployee.leadingTeam.id
-        }
-      }
+          id: oldEmployee.leadingTeam.id,
+        },
+      };
     }
   }
 
@@ -447,38 +447,47 @@ export const deleteEmployee = async (req, res, next) => {
 
 export const getEmployeesProductavity = async (req, res, next) => {
   const branchId = toNumber(req.params.branchId);
-  const employees = await prisma.employee.findMany({
-    where: {
+  const { page, limit } = getPageAndLimitFromQurey(req.query);
+  const data = await getPagination(
+    'employee',
+    page,
+    limit,
+    {
       branchId,
     },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      salutation: true,
-      account: {
-        select: {
-          ...accountDataToSelect,
-        },
-      },
-      tasks: {
-        select: {
-          client: {
-            select: clientDataToSelect,
+    {
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        salutation: true,
+        account: {
+          select: {
+            ...accountDataToSelect,
           },
         },
-        distinct: ['clientId'],
+        tasks: {
+          select: {
+            client: {
+              select: clientDataToSelect,
+            },
+          },
+          distinct: ['clientId'],
+        },
       },
-    },
-  });
-
-  employees.forEach((emp) => {
+    }
+  );
+  console.log(data);
+  // @ts-ignore
+  data.employees.forEach((emp) => {
     // @ts-ignore
     emp.clientsWorkedWith = emp.tasks.flatMap((t) => t.client);
     delete emp.tasks;
   });
 
-  for (const employee of employees) {
+  // @ts-ignore
+  // @ts-ignore
+  for (const employee of data.employees) {
     // @ts-ignore
     for (const client of employee.clientsWorkedWith) {
       const total = await prisma.invoice.aggregate({
@@ -528,6 +537,6 @@ export const getEmployeesProductavity = async (req, res, next) => {
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
-    employees,
+    ...data,
   });
 };
