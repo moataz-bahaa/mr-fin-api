@@ -20,7 +20,7 @@ export const postAppointment = async (req, res, next) => {
   let url = null;
   let zoomObj = {}
   if (createMeeting) {
-    const zoomMeeting = await createZoomMeeting();
+    const zoomMeeting = await createZoomMeeting(data.date);
     url = zoomMeeting.start_url;
     zoomObj = zoomMeeting
   }
