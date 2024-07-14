@@ -9,6 +9,7 @@ import {
 import {
   deleteClient,
   getClientById,
+  getClientOrdersDetails,
   getClients,
   getClientServices,
   patchClient,
@@ -22,6 +23,7 @@ router.get('/branch/:branchId', getClients);
 
 router.get('/:id', getClientById);
 router.get('/:id/services', getClientServices);
+router.get('/:id/orders', getClientOrdersDetails);
 
 router.post(
   '/',

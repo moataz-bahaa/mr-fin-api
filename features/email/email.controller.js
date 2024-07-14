@@ -17,6 +17,7 @@ import {
 } from '../../utils/helpers.js';
 import { toNumber } from '../../utils/index.js';
 import { MESSAGES } from '../../utils/messages.js';
+import { sendEmail } from '../../utils/email.js';
 
 export const postEmail = async (req, res, next) => {
   const { subject, content, receivers, serviceId, parentEmailId } = validateJoi(
@@ -63,8 +64,6 @@ export const postEmail = async (req, res, next) => {
   });
 
   // send email remeinder
-
-  sendSocketEmail(email);
   // TODO enable or not ?
   // email.receivers.forEach((user) => {
   //   sendEmail({
@@ -74,6 +73,8 @@ export const postEmail = async (req, res, next) => {
   //     text: `check your email at ${process.env.NEXT_APP_BASE_URL}`,
   //   });
   // });
+
+  sendSocketEmail(email);
 };
 
 export const getEmails = async (req, res, next) => {

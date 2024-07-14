@@ -401,8 +401,39 @@ export const putClientServices = async (req, res, next) => {
 };
 
 export const getClientOrdersDetails = async (req, res, next) => {
-  // TODO
-  // check https://www.figma.com/design/98C7dz8DKuIlhkJGXRfTnN/standared-map?node-id=119-3370&t=7H7DICNeuAht6PUt-4
+  const id = toNumber(req.params.id);
+
+  const client = await prisma.client.findUniqueOrThrow({
+    where: { id },
+    include: {
+      services: true,
+    },
+  });
+
+  const services = client.services;
+
+  for (const service of services) {
+    const total = await prisma.invoiceItem.aggregate({
+      where: {
+        invoice: {
+          clientId: client.id,
+        },
+        serviceId: service.id,
+      },
+      _sum: {
+        amount: true,
+        price: true,
+      },
+    });
+
+    // @ts-ignore
+    service.totalPrice = (total._sum.price ?? 0) * (total._sum.amount ?? 0);
+  }
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
+    services,
+  });
 };
 
 export const getClientServices = async (req, res, next) => {

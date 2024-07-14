@@ -5,10 +5,6 @@ import {
   getPagination,
 } from '../../utils/helpers.js';
 
-export const postMeeting = async (req, res, next) => {
-  // TODO
-};
-
 export const getMeetings = async (req, res, next) => {
   const { page, limit } = getPageAndLimitFromQurey(req.query);
   const { search, type } = req.query;

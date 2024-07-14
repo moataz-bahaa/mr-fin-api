@@ -8,11 +8,31 @@ import {
 
 export const getContactUsMessages = async (req, res, next) => {
   const { page, limit } = getPageAndLimitFromQurey(req.query);
+  const { search } = req.query;
 
-  const data = await getPagination('contactUsMessages', page, limit, {}, {
+  let filter = {};
+
+  if (search) {
+    filter = {
+      OR: [
+        {
+          name: {
+            contains: search,
+          },
+        },
+        {
+          email: {
+            contains: search,
+          },
+        },
+      ],
+    };
+  }
+
+  const data = await getPagination('contactUsMessages', page, limit, filter, {
     orderBy: {
-      createdAt: 'desc'
-    }
+      createdAt: 'desc',
+    },
   });
 
   res.status(StatusCodes.OK).json({
