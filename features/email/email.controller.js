@@ -77,14 +77,12 @@ export const postEmail = async (req, res, next) => {
 };
 
 export const getEmails = async (req, res, next) => {
-  console.log('get emails', req.query);
-  // TODO review and order desc by date
   const {
     type,
     branchId,
     search,
     serviceId,
-    showAll = 'true',
+    showAll = 'false',
     isReaded,
     fetchFor, // client or employee
   } = req.query;
@@ -163,6 +161,30 @@ export const getEmails = async (req, res, next) => {
           senderId: req.account.id,
         },
       ];
+
+      if (fetchFor === 'client') {
+        // @ts-ignore
+        filter.AND.push({
+          receivers: {
+            some: {
+              client: {
+                isNot: null,
+              },
+            },
+          },
+        });
+      } else if (fetchFor === 'employee') {
+        // @ts-ignore
+        filter.AND.push({
+          receivers: {
+            some: {
+              employee: {
+                isNot: null,
+              },
+            },
+          },
+        });
+      }
     } else if (type === 'received') {
       filter.AND = [
         {
@@ -173,6 +195,26 @@ export const getEmails = async (req, res, next) => {
           },
         },
       ];
+
+      if (fetchFor === 'client') {
+        // @ts-ignore
+        filter.AND.push({
+          sender: {
+            client: {
+              isNot: null,
+            },
+          },
+        });
+      } else if (fetchFor === 'employee') {
+        // @ts-ignore
+        filter.AND.push({
+          sender: {
+            client: {
+              isNot: null,
+            },
+          },
+        });
+      }
     } else {
       filter.AND = [
         {
@@ -208,27 +250,25 @@ export const getEmails = async (req, res, next) => {
             contains: search,
           },
         },
+        {
+          receivers: {
+            some: {
+              // @ts-ignore
+              email: {
+                contains: search,
+              },
+            },
+          },
+        },
+        {
+          // @ts-ignore
+          sender: {
+            email: {
+              contains: search,
+            },
+          },
+        },
       ],
-    });
-  }
-
-  if (fetchFor === 'client') {
-    filter.AND.push({
-      // @ts-ignore
-      sender: {
-        client: {
-          isNot: null,
-        },
-      },
-    });
-  } else if (fetchFor === 'employee') {
-    filter.AND.push({
-      // @ts-ignore
-      sender: {
-        employee: {
-          isNot: null,
-        },
-      },
     });
   }
 
@@ -277,19 +317,19 @@ export const getEmails = async (req, res, next) => {
           email.sender?.admin?.name ??
           email.sender?.client?.name ??
           `${email.sender?.employee?.firstName} ${email.sender?.employee?.lastName}`,
-        receivers: email.receivers.map((a) => {
-          return {
-            ...a,
-            admin: undefined,
-            client: undefined,
-            employee: undefined,
-            name:
-              a?.admin?.name ??
-              a?.client?.name ??
-              `${a?.employee?.firstName} ${a?.employee?.lastName}`,
-          };
-        }),
       },
+      receivers: email.receivers.map((a) => {
+        return {
+          ...a,
+          admin: undefined,
+          client: undefined,
+          employee: undefined,
+          name:
+            a?.admin?.name ??
+            a?.client?.name ??
+            `${a?.employee?.firstName} ${a?.employee?.lastName}`,
+        };
+      }),
     };
   });
 

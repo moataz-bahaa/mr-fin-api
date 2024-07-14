@@ -71,11 +71,8 @@ export const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log('connected', socket.id);
   socket.on('setup', (userId) => {
-    console.log({ userId });
     if (userId) {
-      console.log('Setup', userId);
       socket.join(userId.toString());
       socket.emit('connected');
     }
