@@ -459,6 +459,8 @@ model Meeting {
   timestamp DateTime
   createdAt DateTime @default(now())
 
+  zoomObj Json @default("{}")
+
   accounts    Account[]
   appointment Appointment?
 

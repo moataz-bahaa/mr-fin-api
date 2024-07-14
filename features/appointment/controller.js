@@ -7,6 +7,7 @@ import {
   getPagination,
   validateJoi,
 } from '../../utils/helpers.js';
+import { createZoomMeeting } from '../../libs/zoom-utils.js';
 
 export const postAppointment = async (req, res, next) => {
   const { createMeeting, ...data } = validateJoi(
@@ -17,9 +18,11 @@ export const postAppointment = async (req, res, next) => {
   console.log(req.body);
 
   let url = null;
+  let zoomObj = {}
   if (createMeeting) {
-    // TODO create zoom meeting
-    url = 'https://zoom.com';
+    const zoomMeeting = await createZoomMeeting();
+    url = zoomMeeting.start_url;
+    zoomObj = zoomMeeting
   }
 
   if (!data.employeeId) {
@@ -34,6 +37,7 @@ export const postAppointment = async (req, res, next) => {
     const meeting = await prisma.meeting.create({
       data: {
         url,
+        zoomObj,
         timestamp: data.date,
         accounts: {
           connect: [
