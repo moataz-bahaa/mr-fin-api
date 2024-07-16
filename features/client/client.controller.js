@@ -14,6 +14,7 @@ import {
 import prisma from '../../prisma/client.js';
 import { BadRequestError } from '../../utils/errors.js';
 import {
+  getNextNMonths,
   getPageAndLimitFromQurey,
   getPagination,
   getUrl,
@@ -365,13 +366,25 @@ export const putClientServices = async (req, res, next) => {
       },
     });
 
+    const service = await prisma.service.findUniqueOrThrow({
+      where: {
+        id: serviceId,
+      },
+    });
+
+    const months = getNextNMonths(service.repeatedEvery ?? 0);
+
+    console.log({ 
+      ...service,
+      months,
+    })
+
     // add task
     await prisma.task.create({
       data: {
         clientId: client.id,
         serviceId,
-        // TODO put the real months depending on service.repeatedAt
-        months: ['Jan 2024', 'Feb 2024', 'March 2024'],
+        months,
       },
     });
   }
@@ -462,23 +475,19 @@ export const getClientServices = async (req, res, next) => {
 
 export const getClientSummry = async (req, res, next) => {
   // TODO client oders summry
-  
   /**
    * part 2 (right side)
    * get tota of
    * 1. monthly services
    * 2. annaul services
    * 3. one-off services
-   * 
+   *
    * tota of 1 + 2 + 3
    */
-
-
   /**
    * part 2 left side
-   * 
+   *
    * check
    * https://www.figma.com/design/98C7dz8DKuIlhkJGXRfTnN/standared-map?node-id=93-1239&t=nFS7eOyQfuW6Upu1-4
    */
-  
 };

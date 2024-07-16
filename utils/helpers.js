@@ -122,3 +122,30 @@ export const getAdminAccountId = async () => {
   const admin = await prisma.admin.findFirst();
   return admin?.id;
 };
+
+/**
+ * 
+ * @param {number} n 
+ * @returns 
+ */
+export function getNextNMonths(n) {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+  let today = new Date();
+  let currentMonth = today.getMonth();
+  let currentYear = today.getFullYear();
+  
+  let result = [];
+  
+  for (let i = 0; i < n; i++) {
+      result.push(`${months[currentMonth]} ${currentYear}`);
+      currentMonth++;
+      if (currentMonth === 12) {
+          currentMonth = 0;
+          currentYear++;
+      }
+  }
+  
+  return result;
+}

@@ -38,6 +38,12 @@ export const postLogin = async (req, res) => {
     throw new BadRequestError('Invalid credentials');
   }
 
+  if (account.status === 'active') {
+    throw new BadRequestError(
+      'You are in archive and can not login, please contact admins'
+    );
+  }
+
   await prisma.account.update({
     where: {
       id: account.id,
