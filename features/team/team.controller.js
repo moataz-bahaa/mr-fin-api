@@ -160,7 +160,7 @@ export const patchTeam = async (req, res, next) => {
         id: data.teamLeaderId,
       },
       data: {
-        roleId: 2,
+        roleId: 2, // team-leader
         teamId: null,
         leadingTeam: {
           disconnect: true,
@@ -173,7 +173,7 @@ export const patchTeam = async (req, res, next) => {
         id: team.teamLeaderId,
       },
       data: {
-        roleId: 3,
+        roleId: 3, // employee
         teamId: team.id,
       },
     });
