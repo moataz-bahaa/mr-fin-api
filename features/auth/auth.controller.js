@@ -38,7 +38,7 @@ export const postLogin = async (req, res) => {
     throw new BadRequestError('Invalid credentials');
   }
 
-  if (account.status === 'active') {
+  if (account.status === 'archive') {
     throw new BadRequestError(
       'You are in archive and can not login, please contact admins'
     );
