@@ -7,6 +7,7 @@ import {
   getPagination,
 } from '../../utils/helpers.js';
 import { toNumber } from '../../utils/index.js';
+import { MESSAGES } from '../../utils/messages.js';
 
 export const getClientFiles = async (req, res, next) => {
   const clientId = toNumber(req.params.clientId);
@@ -94,5 +95,22 @@ export const deleteFile = async (req, res, next) => {
     where: {
       id: fileId,
     },
+  });
+};
+
+export const deleteUseFile = async (req, res, next) => {
+  const id = toNumber(req.params.id);
+
+  await prisma.file.findUniqueOrThrow({
+    where: { id },
+  });
+
+  await prisma.file.delete({
+    where: { id },
+  });
+
+  res.status(StatusCodes.OK).json({
+    status: STATUS.SUCCESS,
+    message: MESSAGES.DELETED,
   });
 };

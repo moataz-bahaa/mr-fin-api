@@ -1,8 +1,10 @@
 import { Router } from 'express';
-import { getClientFiles } from './controller.js';
+import { deleteUseFile, getClientFiles } from './controller.js';
 
 const router = Router();
 
 router.get('/:clientId', getClientFiles);
+
+router.delete('/:id', deleteUseFile);
 
 export default router;
