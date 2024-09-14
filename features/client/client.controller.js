@@ -11,6 +11,7 @@ import {
   ClientServicesSchema,
   UpdateClientSchema,
 } from '../../libs/joi-schemas.js';
+import { clearFiles } from '../../libs/upload.js';
 import prisma from '../../prisma/client.js';
 import { BadRequestError } from '../../utils/errors.js';
 import {
@@ -326,6 +327,21 @@ export const deleteClient = async (req, res, next) => {
     },
   });
 
+  const files = await prisma.file.findMany({
+    where: {
+      OR: [
+        {
+          userId: id,
+        },
+        {
+          clientId: id,
+        },
+      ],
+    },
+  });
+
+  clearFiles(...files.map((file) => file.url));
+
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
     message: MESSAGES.DELETED,
@@ -374,10 +390,10 @@ export const putClientServices = async (req, res, next) => {
 
     const months = getNextNMonths(service.repeatedEvery ?? 0);
 
-    console.log({ 
+    console.log({
       ...service,
       months,
-    })
+    });
 
     // add task
     await prisma.task.create({
@@ -474,7 +490,7 @@ export const getClientServices = async (req, res, next) => {
 };
 
 export const getClientSummry = async (req, res, next) => {
-  // TODO client oders summry
+  // client oders summry - not clear in UI
   /**
    * part 2 (right side)
    * get tota of

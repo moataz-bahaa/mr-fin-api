@@ -105,7 +105,7 @@ export const getEmails = async (req, res, next) => {
   ) {
     if (!branchId) {
       throw new BadRequestError(
-        `for admins and branch managers branchId must be sent`
+        MESSAGES.BRANCH_ID_MUST_BE_SENT
       );
     }
     filter.AND = [

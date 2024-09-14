@@ -1,5 +1,6 @@
 import prisma from '../prisma/client.js';
 import { BadRequestError } from './errors.js';
+import { MESSAGES } from './messages.js';
 
 /**
  * @param {number} totalCount
@@ -26,7 +27,7 @@ export const parseJson = (str) => {
 export const toNumber = (value) => {
   const number = Number(value);
   if (isNaN(number)) {
-    throw new BadRequestError('plz provide correct number');
+    throw new BadRequestError(MESSAGES.INCORRECT_NUMBER);
   }
 
   return number;

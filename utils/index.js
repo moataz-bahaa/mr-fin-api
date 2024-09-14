@@ -1,10 +1,11 @@
 import { BadRequestError } from './errors.js';
+import { MESSAGES } from './messages.js';
 
 export const toNumber = (value) => {
   const number = +value;
 
   if (isNaN(number)) {
-    throw new BadRequestError('invalid number');
+    throw new BadRequestError(MESSAGES.INCORRECT_NUMBER);
   }
 
   return number;

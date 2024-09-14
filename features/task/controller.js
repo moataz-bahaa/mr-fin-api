@@ -129,7 +129,7 @@ export const getTasks = async (req, res, next) => {
   if (req.account.isAdmin || req.account.isBranchManager) {
     if (!branchId && !clientId) {
       throw new BadRequestError(
-        'For admins and branch managers branchId must be sent'
+        MESSAGES.BRANCH_ID_MUST_BE_SENT
       );
     }
 
@@ -205,8 +205,6 @@ export const getTasks = async (req, res, next) => {
       },
     },
   });
-
-  console.log(JSON.stringify(filter), data);
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,

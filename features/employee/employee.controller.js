@@ -10,6 +10,7 @@ import {
   EmployeeSchema,
   UpdateEmployeeSchema,
 } from '../../libs/joi-schemas.js';
+import { clearFiles } from '../../libs/upload.js';
 import prisma from '../../prisma/client.js';
 import { BadRequestError } from '../../utils/errors.js';
 import {
@@ -439,6 +440,21 @@ export const deleteEmployee = async (req, res, next) => {
     },
   });
 
+  const files = await prisma.file.findMany({
+    where: {
+      OR: [
+        {
+          userId: id,
+        },
+        {
+          employeeId: id,
+        },
+      ],
+    },
+  });
+
+  clearFiles(...files.map((file) => file.url));
+
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,
     message: MESSAGES.DELETED,
@@ -469,10 +485,10 @@ export const getEmployeesProductavity = async (req, res, next) => {
       {
         account: {
           email: {
-            contains: search
-          }
-        }
-      }
+            contains: search,
+          },
+        },
+      },
     ];
   }
 

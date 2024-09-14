@@ -31,12 +31,12 @@ export const patchBranch = async (req, res, next) => {
 
     if (employee.branchId !== id) {
       throw new BadRequestError(
-        `Employee belongs to different branch can't be a manger of the current branch`
+        MESSAGES.EMPLOYEE_CAN_NOT_BE_MANGER
       );
     }
 
     if (employee.roleId !== 1) {
-      throw new BadRequestError(`Employee role must be branch-manager`);
+      throw new BadRequestError(MESSAGES.ROLE_MUST_BE_BRANCH_MANAGER);
     }
 
     await prisma.employee.update({

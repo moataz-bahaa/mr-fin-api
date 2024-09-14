@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { STATUS } from '../../libs/constants.js';
+import { clearFiles } from '../../libs/upload.js';
 import prisma from '../../prisma/client.js';
-import { BadRequestError } from '../../utils/errors.js';
 import {
   getPageAndLimitFromQurey,
   getPagination,
@@ -46,68 +46,18 @@ export const getClientFiles = async (req, res, next) => {
   });
 };
 
-// optimizations
-
-export const getFilesInFolder = async (req, res, next) => {
-  const folderId = toNumber(req.params.id);
-
-  const files = await prisma.file.findMany({
-    where: {
-      folderId,
-    },
-  });
-
-  res.status(StatusCodes.OK).json({
-    files,
-  });
-};
-
-export const postFile = async (req, res, next) => {
-  if (!req.file) {
-    throw new BadRequestError('no file attached');
-  }
-
-  const data = {
-    userId: req.user.id,
-    url: req.file?.path,
-    folderId: req.body.folderId,
-    categoryId: req.body.categoryId,
-  };
-
-  const file = await prisma.file.create({ data });
-
-  res.status(StatusCodes.CREATED).json({
-    message: 'file created',
-    file,
-  });
-};
-
-export const deleteFile = async (req, res, next) => {
-  const fileId = toNumber(req.params.id);
-
-  await prisma.file.findUniqueOrThrow({
-    where: {
-      id: fileId,
-    },
-  });
-
-  await prisma.file.delete({
-    where: {
-      id: fileId,
-    },
-  });
-};
-
-export const deleteUseFile = async (req, res, next) => {
+export const deleteUserFile = async (req, res, next) => {
   const id = toNumber(req.params.id);
 
-  await prisma.file.findUniqueOrThrow({
+  const file = await prisma.file.findUniqueOrThrow({
     where: { id },
   });
 
   await prisma.file.delete({
     where: { id },
   });
+
+  clearFiles(file.url);
 
   res.status(StatusCodes.OK).json({
     status: STATUS.SUCCESS,

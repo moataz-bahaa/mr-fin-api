@@ -12,6 +12,7 @@ import {
   validateJoi,
 } from '../../utils/helpers.js';
 import { AuthService, getUserById } from './auth.service.js';
+import { MESSAGES } from '../../utils/messages.js';
 
 export const postLogin = async (req, res) => {
   const { email, password } = validateJoi(AccountSchema, req.body);
@@ -26,7 +27,7 @@ export const postLogin = async (req, res) => {
   });
 
   if (!account) {
-    throw new BadRequestError('invalid credentials');
+    throw new BadRequestError(MESSAGES.INVALID_CREDENTIALS);
   }
 
   const isPasswordValid = await comparePassword(
@@ -35,12 +36,12 @@ export const postLogin = async (req, res) => {
   );
 
   if (!isPasswordValid) {
-    throw new BadRequestError('Invalid credentials');
+    throw new BadRequestError(MESSAGES.INVALID_CREDENTIALS);
   }
 
   if (account.status === 'archive') {
     throw new BadRequestError(
-      'You are in archive and can not login, please contact admins'
+      MESSAGES.USER_IS_ARCHIVED_AND_CAN_NOT_LOGIN
     );
   }
 
@@ -79,7 +80,7 @@ export const postChangePassword = async (req, res) => {
   const user = await getUserById(userId);
 
   if (!user) {
-    throw new BadRequestError('user not found');
+    throw new BadRequestError(MESSAGES.USER_NOT_FOUND);
   }
 
   const isPasswordValid = await comparePassword(
@@ -88,7 +89,7 @@ export const postChangePassword = async (req, res) => {
   );
 
   if (!isPasswordValid) {
-    throw new BadRequestError('Invalid old password');
+    throw new BadRequestError(MESSAGES.INVALID_OLD_PASSWORD);
   }
 
   const newHashedPassword = await hashPassword(newPassword);
@@ -100,7 +101,7 @@ export const postChangePassword = async (req, res) => {
 
   res
     .status(StatusCodes.OK)
-    .json({ message: 'Password changed successfully', updatedUser });
+    .json({ message: MESSAGES.PASSWORD_CHANGED_SUCCESSFULLY, updatedUser });
 };
 
 export const getUsers = async (req, res, next) => {

@@ -49,7 +49,7 @@ export const postDailyReport = async (req, res, next) => {
   const data = validateJoi(DailyReportSchema, req.body);
 
   if (!req.account.employee) {
-    throw new ForbidenError('Only employees can write Daily reports');
+    throw new ForbidenError(MESSAGES.ONLY_EMPLOYEE_CAN_WRITE_REPORTS);
   }
 
   data.employeeId = req.account.employee.id;

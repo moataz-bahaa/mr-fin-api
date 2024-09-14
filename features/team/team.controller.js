@@ -113,7 +113,7 @@ export const postTeam = async (req, res, next) => {
 
     if (isExists) {
       throw new BadRequestError(
-        `Employee with id ${data.teamLeaderId} is a team leader in another team`
+        MESSAGES.employeeIsATeamLeaderInAnotherTeam(data.teamLeaderId)
       );
     }
 

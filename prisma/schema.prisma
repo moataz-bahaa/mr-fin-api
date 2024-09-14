@@ -57,7 +57,6 @@ model Account {
   sendedEmails   Email[]        @relation("user_sended_emails")
   receivedEmails Email[]        @relation("user_received_emails")
   uploadedFiles  File[]
-  notifications  Notification[]
 
   meetings Meeting[]
 
@@ -321,22 +320,6 @@ model Email {
   @@map("emails")
 }
 
-model Folder {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  parentFolder   Folder? @relation("child_folders", fields: [parentFolderId], references: [id])
-  parentFolderId Int?
-
-  folders Folder[] @relation("child_folders")
-
-  files File[]
-
-  @@map("folders")
-}
-
 model File {
   id        Int      @id @default(autoincrement())
   url       String
@@ -349,9 +332,6 @@ model File {
   service   Service? @relation(fields: [serviceId], references: [id])
   serviceId Int?
 
-  folder   Folder? @relation(fields: [folderId], references: [id])
-  folderId Int?
-
   email   Email? @relation(fields: [emailId], references: [id])
   emailId Int?
 
@@ -362,17 +342,6 @@ model File {
   employeeId Int?
 
   @@map("files")
-}
-
-model Notification {
-  id      Int     @id @default(autoincrement())
-  title   String
-  content String?
-
-  usre   Account @relation(fields: [userId], references: [id])
-  userId Int
-
-  @@map("notifications")
 }
 
 model ContactUsMessages {
