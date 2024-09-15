@@ -35,7 +35,7 @@ export const patchBranch = async (req, res, next) => {
       );
     }
 
-    if (employee.roleId !== 1) {
+    if (employee.roleId !== 2) {
       throw new BadRequestError(MESSAGES.ROLE_MUST_BE_BRANCH_MANAGER);
     }
 

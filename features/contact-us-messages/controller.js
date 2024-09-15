@@ -1,10 +1,12 @@
 import { StatusCodes } from 'http-status-codes';
 import { STATUS } from '../../libs/constants.js';
+import { sendSocketNotification } from '../../libs/socket.js';
 import prisma from '../../prisma/client.js';
 import {
   getPageAndLimitFromQurey,
   getPagination,
 } from '../../utils/helpers.js';
+import { MESSAGES } from '../../utils/messages.js';
 
 export const getContactUsMessages = async (req, res, next) => {
   const { page, limit } = getPageAndLimitFromQurey(req.query);
@@ -50,4 +52,8 @@ export const postContactUsMessage = async (req, res, next) => {
     status: STATUS.SUCCESS,
     message,
   });
+
+  const admin = await prisma.admin.findFirst();
+
+  sendSocketNotification(admin.id, MESSAGES.NEW_CONTACT_US_MESSAGE);
 };

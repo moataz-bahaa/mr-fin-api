@@ -34,7 +34,7 @@ export const getEmployeeRoles = async (req, res, next) => {
 
 export const getEmployees = async (req, res, next) => {
   const branchId = toNumber(req.params.branchId);
-  const { search, status, teamId, excludedTeamId } = req.query;
+  const { search, status, teamId, excludedTeamId, roleId } = req.query;
   const { page, limit } = getPageAndLimitFromQurey(req.query);
 
   const filter = {
@@ -141,6 +141,13 @@ export const getEmployees = async (req, res, next) => {
         ],
       }
     );
+  }
+
+  if (roleId) {
+    // @ts-ignore
+    filter.AND.push({
+      roleId: toNumber(roleId)
+    })
   }
 
   const data = await getPagination('employee', page, limit, filter, {

@@ -28,6 +28,7 @@ import taskRoutes from './features/task/routes.js';
 import teamRoutes from './features/team/team.routes.js';
 import { APIKeyGuard } from './middlewares/api-key.middleware.js';
 import prisma from './prisma/client.js';
+import { upload } from './libs/upload.js';
 
 const app = express();
 
@@ -37,9 +38,9 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan('common'));
 
+app.post('/api/contact-us', upload.none(), postContactUsMessage);
 app.use(APIKeyGuard);
 app.use('/api/auth', authRoues);
-app.post('/api/contact-us', postContactUsMessage);
 app.use(isAuth);
 app.use('/api/branches', branchRoutes);
 app.use('/api/employees', employeeRoutes);

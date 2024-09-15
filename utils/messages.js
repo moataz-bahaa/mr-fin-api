@@ -32,4 +32,5 @@ export const MESSAGES = {
   INVALID_API_KEY:
     'Ungültiger API-Schlüssel, bitte kontaktieren Sie den Backend-Entwickler, um einen gültigen API-Schlüssel zu erhalten',
   INCORRECT_NUMBER: 'Falsche Nummer',
+  NEW_CONTACT_US_MESSAGE: 'neue Nachricht erhalten'
 };

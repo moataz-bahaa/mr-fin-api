@@ -7,3 +7,7 @@ export const sendSocketEmail = async (email) => {
     io.to(user.id.toString()).emit('new-email', email);
   });
 };
+
+export const sendSocketNotification = async (userId, notification) => {
+  io.to(userId.toString()).emit('notification', notification);
+};
