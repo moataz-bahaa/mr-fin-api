@@ -146,8 +146,8 @@ export const getEmployees = async (req, res, next) => {
   if (roleId) {
     // @ts-ignore
     filter.AND.push({
-      roleId: toNumber(roleId)
-    })
+      roleId: toNumber(roleId),
+    });
   }
 
   const data = await getPagination('employee', page, limit, filter, {

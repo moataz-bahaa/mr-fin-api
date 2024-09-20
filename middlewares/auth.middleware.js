@@ -37,6 +37,8 @@ export const isAuth = async (req, res, next) => {
     req.account.isClient = account.client ? true : false;
     req.account.isBranchManager = req.account.employee?.roleId === 1;
     req.account.isTeamLeader = req.account.employee?.roleId === 2;
+
+    // console.log(req.query, req.body);
   } catch (err) {
     throw new UnAuthenticatedError(
       typeof err.message === 'string' ? err.message : undefined

@@ -17,7 +17,6 @@ import {
 } from '../../utils/helpers.js';
 import { toNumber } from '../../utils/index.js';
 import { MESSAGES } from '../../utils/messages.js';
-import { sendEmail } from '../../utils/email.js';
 
 export const postEmail = async (req, res, next) => {
   const { subject, content, receivers, serviceId, parentEmailId } = validateJoi(
@@ -104,9 +103,7 @@ export const getEmails = async (req, res, next) => {
     showAll === 'true'
   ) {
     if (!branchId) {
-      throw new BadRequestError(
-        MESSAGES.BRANCH_ID_MUST_BE_SENT
-      );
+      throw new BadRequestError(MESSAGES.BRANCH_ID_MUST_BE_SENT);
     }
     filter.AND = [
       {
@@ -178,9 +175,18 @@ export const getEmails = async (req, res, next) => {
         filter.AND.push({
           receivers: {
             some: {
-              employee: {
-                isNot: null,
-              },
+              OR: [
+                {
+                  employee: {
+                    isNot: null,
+                  },
+                },
+                {
+                  admin: {
+                    isNot: null,
+                  },
+                },
+              ],
             },
           },
         });
@@ -209,9 +215,18 @@ export const getEmails = async (req, res, next) => {
         // @ts-ignore
         filter.AND.push({
           sender: {
-            employee: {
-              isNot: null,
-            },
+            OR: [
+              {
+                employee: {
+                  isNot: null,
+                },
+              },
+              {
+                admin: {
+                  isNot: null,
+                },
+              },
+            ],
           },
         });
       }

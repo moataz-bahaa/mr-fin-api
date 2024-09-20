@@ -124,6 +124,11 @@ export const getUsers = async (req, res, next) => {
               branchId,
             },
           },
+          {
+            admin: {
+              isNot: null
+            }
+          }
         ],
       },
       {

@@ -29,13 +29,15 @@ export const patchBranch = async (req, res, next) => {
       },
     });
 
+    console.log(employee);
+
     if (employee.branchId !== id) {
       throw new BadRequestError(
         MESSAGES.EMPLOYEE_CAN_NOT_BE_MANGER
       );
     }
 
-    if (employee.roleId !== 2) {
+    if (employee.roleId !== 1) {
       throw new BadRequestError(MESSAGES.ROLE_MUST_BE_BRANCH_MANAGER);
     }
 
