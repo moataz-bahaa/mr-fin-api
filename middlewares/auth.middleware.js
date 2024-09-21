@@ -23,7 +23,12 @@ export const isAuth = async (req, res, next) => {
       include: {
         admin: true,
         client: true,
-        employee: true,
+        employee: {
+          include: {
+            team: true,
+            leadingTeam: true,
+          }
+        },
       },
     });
 

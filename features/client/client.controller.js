@@ -43,6 +43,10 @@ export const getClients = async (req, res, next) => {
     filter.teamId = toNumber(teamId);
   }
 
+  if (!req.isAdmin && !req.isBranchManger) {
+    filter.teamId = req.account.employee?.leadingTeam?.id || req.account.employee?.team?.id || 0;
+  }
+
   if (search) {
     filter.OR = [
       'salutation',
