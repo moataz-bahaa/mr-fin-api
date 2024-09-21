@@ -43,7 +43,7 @@ export const getClients = async (req, res, next) => {
     filter.teamId = toNumber(teamId);
   }
 
-  if (!req.isAdmin && !req.isBranchManger) {
+  if (!req.account.isAdmin && !req.account.isBranchManger) {
     filter.teamId = req.account.employee?.leadingTeam?.id || req.account.employee?.team?.id || 0;
   }
 
